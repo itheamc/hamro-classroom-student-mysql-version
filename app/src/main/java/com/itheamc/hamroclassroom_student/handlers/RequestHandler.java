@@ -9,6 +9,7 @@ import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.User;
+import com.itheamc.hamroclassroom_student.models.UserSubject;
 import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 import com.itheamc.hamroclassroom_student.utils.TimeUtils;
 
@@ -118,11 +119,11 @@ public class RequestHandler {
     }
 
     // POST REQUEST
-    public static Request studentSubjectsPostRequest(@NonNull String _id, @NonNull String _studentId, @NonNull String _subjectId) {
+    public static Request studentSubjectsPostRequest(@NonNull UserSubject userSubject) {
         RequestBody requestBody = new FormBody.Builder()
-                .add("_id", _id)
-                .add("_student", _studentId)
-                .add("_subject", _subjectId)
+                .add("_id", userSubject.get_id())
+                .add("_student", userSubject.get_user())
+                .add("_subject", userSubject.get_subject())
                 .build();
 
         return new Request.Builder().url(PathHandler.STUDENTS_PATH).post(requestBody).build();

@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.itheamc.hamroclassroom_student.callbacks.SubmissionCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.SubmissionViewBinding;
 import com.itheamc.hamroclassroom_student.models.Submission;
+import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
+import com.itheamc.hamroclassroom_student.utils.TimeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +42,7 @@ public class SubmissionAdapter extends ListAdapter<Submission, SubmissionAdapter
     public void onBindViewHolder(@NonNull @NotNull SubmissionViewHolder holder, int position) {
         Submission submission = getItem(position);
         holder.viewBinding.setSubmission(submission);
-        String formattedDate = DateFormat.getDateInstance().format(submission.get_submitted_date());
+        String formattedDate = DateFormat.getDateInstance().format(TimeUtils.toDate(submission.get_submitted_date()));
         holder.viewBinding.setDate(formattedDate);
     }
 

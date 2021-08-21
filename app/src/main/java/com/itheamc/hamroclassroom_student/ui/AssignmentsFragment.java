@@ -278,7 +278,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
     private void retrieveAssignments() {
         if (position < filteredSubjects.size()) {
             String id = filteredSubjects.get(position).get_id();
-            QueryHandler.getInstance(this).getAssignments(id);
+            QueryHandler.getInstance(this).getAssignments("", "");
             return;
         }
 

@@ -36,6 +36,7 @@ import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
 import com.itheamc.hamroclassroom_student.utils.LocalStorage;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
+import com.itheamc.hamroclassroom_student.utils.TimeUtils;
 import com.itheamc.hamroclassroom_student.utils.ViewUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.LoginViewModel;
 
@@ -192,11 +193,8 @@ public class RegisterFragment extends Fragment implements QueryCallbacks, School
                     _rollNo,
                     school.get_id(),
                     null,
-                    new ArrayList<>(),
                     null,
-                    new ArrayList<>(),
-                    null,
-                    new Date()
+                    TimeUtils.now()
             );
 
             QueryHandler.getInstance(this).storeUser(user);

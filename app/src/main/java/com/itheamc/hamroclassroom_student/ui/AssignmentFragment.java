@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import com.itheamc.hamroclassroom_student.adapters.SliderAdapter;
 import com.itheamc.hamroclassroom_student.databinding.FragmentAssignmentBinding;
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 
 
@@ -60,7 +61,7 @@ public class AssignmentFragment extends Fragment {
         Assignment assignment = viewModel.getAssignment();
         if (assignment != null) {
             assignmentBinding.setAssignment(assignment);
-            if (assignment.get_images().size() > 0) sliderAdapter.submitList(assignment.get_images());
+            if (assignment.get_images().length > 0) sliderAdapter.submitList(ArrayUtils.asList(assignment.get_images()));
         }
 
     }

@@ -14,6 +14,7 @@ import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
+import com.itheamc.hamroclassroom_student.models.UserSubject;
 
 import org.json.JSONObject;
 
@@ -138,9 +139,9 @@ public class QueryHandler {
      * Function to add subject to user in the Database
      * --------------------------------------------------------------------------------------
      */
-    public void addSubjectToUser(String _id, String _studentId, String _subId) {
+    public void addSubjectToUser(@NonNull UserSubject userSubject) {
         executorService.execute(() -> {
-            client.newCall(RequestHandler.studentSubjectsPostRequest(_id, _studentId, _subId)).enqueue(new Callback() {
+            client.newCall(RequestHandler.studentSubjectsPostRequest(userSubject)).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     notifyFailure(e);

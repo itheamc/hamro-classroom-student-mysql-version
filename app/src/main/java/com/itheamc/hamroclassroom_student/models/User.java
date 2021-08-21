@@ -23,6 +23,7 @@ public class User {
     private String _roll_number;
     private String _school_ref;
     private School _school;
+    private List<UserSubject> _subjects;
     private String _joined_on;
 
     // Constructor
@@ -31,7 +32,7 @@ public class User {
 
 
     // Constructor with parameters
-    public User(String _id, String _name, String _gender, String _image, String _phone, String _email, String _address, String _guardian, String _class, String _section, String _roll_number, String _school_ref, School _school, String _joined_on) {
+    public User(String _id, String _name, String _gender, String _image, String _phone, String _email, String _address, String _guardian, String _class, String _section, String _roll_number, String _school_ref, School _school, List<UserSubject> _subjects, String _joined_on) {
         this._id = _id;
         this._name = _name;
         this._gender = _gender;
@@ -45,6 +46,7 @@ public class User {
         this._roll_number = _roll_number;
         this._school_ref = _school_ref;
         this._school = _school;
+        this._subjects = _subjects;
         this._joined_on = _joined_on;
     }
 
@@ -153,6 +155,14 @@ public class User {
         this._school = _school;
     }
 
+    public List<UserSubject> get_subjects() {
+        return _subjects;
+    }
+
+    public void set_subjects(List<UserSubject> _subjects) {
+        this._subjects = _subjects;
+    }
+
     public String get_joined_on() {
         return _joined_on;
     }
@@ -178,13 +188,10 @@ public class User {
                 ", _roll_number='" + _roll_number + '\'' +
                 ", _school_ref='" + _school_ref + '\'' +
                 ", _school=" + _school +
+                ", _subjects=" + _subjects +
                 ", _joined_on='" + _joined_on + '\'' +
                 '}';
     }
-
-
-    // equals() Method
-
 
     // Binding Adapter
     @BindingAdapter("android:imageButtonSrc")

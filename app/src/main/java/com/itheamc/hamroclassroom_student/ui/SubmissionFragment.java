@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import com.itheamc.hamroclassroom_student.adapters.SliderAdapter;
 import com.itheamc.hamroclassroom_student.databinding.FragmentSubmissionBinding;
 import com.itheamc.hamroclassroom_student.models.Submission;
+import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 
 
@@ -62,7 +63,7 @@ public class SubmissionFragment extends Fragment {
         Submission submission = viewModel.getSubmission();
         if (submission != null) {
             submissionBinding.setSubmission(submission);
-            if (submission.get_images().size() > 0) sliderAdapter.submitList(submission.get_images());
+            if (submission.get_images().length > 0) sliderAdapter.submitList(ArrayUtils.asList(submission.get_images()));
         }
     }
 

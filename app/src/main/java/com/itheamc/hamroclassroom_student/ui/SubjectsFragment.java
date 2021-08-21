@@ -25,6 +25,8 @@ import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
+import com.itheamc.hamroclassroom_student.models.UserSubject;
+import com.itheamc.hamroclassroom_student.utils.IdGenerator;
 import com.itheamc.hamroclassroom_student.utils.LocalStorage;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
 import com.itheamc.hamroclassroom_student.utils.ViewUtils;
@@ -172,28 +174,28 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
 
         Subject subject = subjects.get(_position);
         User user = viewModel.getUser();
-        List<String> subjectIds = user.get_subjects_ref();
+//        List<UserSubject> userSubjects = user.su();
 
         if (subject.is_added()) {
             subject.set_added(false);
-            subjectIds.remove(subject.get_id());
+//            subjectIds.remove(subject.get_id());
         } else {
             subject.set_added(true);
-            subjectIds.add(subject.get_id());
+//            subjectIds.add(subject.get_id());
 
         }
 
         // Updating to the view model
-        user.set_subjects_ref(subjectIds);
+//        user.set_subjects_ref(subjectIds);
         viewModel.setUser(user);
         viewModel.replaceSubject(subject);
 
         if (subject.is_added()) {
-            QueryHandler.getInstance(this).addSubjectToUser(user.get_id(), subject.get_id());
+            QueryHandler.getInstance(this).addSubjectToUser(new UserSubject(IdGenerator.generateRandomId(), user.get_id(), subject.get_id()));
             _message = "Added";
             return;
         }
-        QueryHandler.getInstance(this).removeSubjectToUser(user.get_id(), subject.get_id());
+        QueryHandler.getInstance(this).removeSubjectToUser("id");
         _message = "Removed";
     }
 
@@ -254,7 +256,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         List<Subject> processedSubjects = new ArrayList<>();
 
         if (user != null) {
-            subject_ids = user.get_subjects_ref();
+//            subject_ids = user.get_subjects_ref();
         }
 
         for (Subject subject: subjects) {

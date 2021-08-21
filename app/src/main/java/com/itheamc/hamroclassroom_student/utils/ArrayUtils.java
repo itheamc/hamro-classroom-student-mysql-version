@@ -1,8 +1,11 @@
 package com.itheamc.hamroclassroom_student.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ArrayUtils {
+
     public static String toString(String[] strings) {
         return Arrays.toString(strings).replace("[", "").replace("]", "");
     }
@@ -17,5 +20,15 @@ public class ArrayUtils {
 
     public static String[] toArray(String string, String regex) {
         return string.split(regex);
+    }
+
+    public static List<String> asList(String[] strings) {
+        List<String> list = new ArrayList<>();
+        for (String s: strings) {
+            if (s == null || s.isEmpty() || !s.contains("https://")) continue;
+            list.add(s);
+        }
+
+        return list;
     }
 }

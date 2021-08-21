@@ -39,9 +39,11 @@ import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
+import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 import com.itheamc.hamroclassroom_student.utils.IdGenerator;
 import com.itheamc.hamroclassroom_student.utils.ImageUtils;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
+import com.itheamc.hamroclassroom_student.utils.TimeUtils;
 import com.itheamc.hamroclassroom_student.utils.ViewUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 
@@ -213,8 +215,9 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
      * It will be triggered continuously until all the images will be uploaded
      */
     private void handleImageUpload() {
+        if (getActivity() == null) return;
         Assignment assignment = viewModel.getAssignment();
-        Bitmap bitmap = ImageUtils.getInstance(getActivity()).getBitmap(imagesUri.get(uploadCount));
+        Bitmap bitmap = ImageUtils.getInstance(getActivity().getContentResolver()).getBitmap(imagesUri.get(uploadCount));
         if (bitmap != null) {
             if (!is_uploading) is_uploading = true;
             StorageHandler.getInstance(this)
@@ -241,17 +244,17 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
         // Creating new assignment object
         Submission submission = new Submission(
                 _submissionId,
-                imagesList,
-                new ArrayList<>(),
+                null,
+                null,
                 _text,
                 assId,
                 null,
                 user.get_id(),
                 null,
-                new Date(),
-                new Date(),
+                TimeUtils.now(),
+                "",
                 false,
-                "No Comment"
+                ""
         );
 
         QueryHandler.getInstance(this)
@@ -270,7 +273,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
             return;
         }
         User user = viewModel.getUser();
-        QueryHandler.getInstance(this).addSubmissionToUser(user.get_id(), _submissionId);
+//        QueryHandler.getInstance(this).addSubmissionToUser(user.get_id(), _submissionId);
     }
 
 

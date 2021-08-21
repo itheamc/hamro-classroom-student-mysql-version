@@ -9,6 +9,7 @@ import com.itheamc.hamroclassroom_student.models.User;
 import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
+import com.itheamc.hamroclassroom_student.models.UserSubject;
 import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 
 import org.json.JSONArray;
@@ -93,6 +94,7 @@ public class JsonHandler {
 
         // Getting school obj
         School school = getSchool(studentObj);
+        List<UserSubject> userSubjects = getUserSubjects(studentObj);
 
         // Creating new student and returning it
         return new User(
@@ -109,8 +111,24 @@ public class JsonHandler {
                 String.valueOf(studentObj.getInt("_roll_number")),
                 school.get_id(),
                 school,
+                userSubjects,
                 studentObj.getString("_joined_on")
         );
+    }
+
+    // StudentSubject Response Handler
+    public static UserSubject getUserSubject(@NonNull JSONObject jsonObject) throws JSONException {
+        JSONObject userSubject;
+
+        if (jsonObject.has("_subjects")) userSubject = jsonObject.getJSONObject("_subjects");
+        else userSubject = jsonObject;
+
+
+        // Creating new student and returning it
+        return new UserSubject(
+                userSubject.getString("_id"),
+                "",
+                userSubject.getString("_subject"));
     }
 
     // Subject Response Handler
@@ -286,6 +304,21 @@ public class JsonHandler {
         }
 
         return subjects;
+    }
+
+    // Subjects Response Handler
+    public static List<UserSubject> getUserSubjects(@NonNull JSONObject jsonObject) throws JSONException {
+        List<UserSubject> userSubjects = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.getJSONArray("_subjects");
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jo = jsonArray.getJSONObject(i);
+
+            // Adding Subject
+            userSubjects.add(getUserSubject(jo));
+        }
+
+        return userSubjects;
     }
 
     // Assignments Response Handler
