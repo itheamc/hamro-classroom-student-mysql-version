@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,8 +22,7 @@ public class Subject {
     private School _school;
     private String _join_url;
     private String _start_time;
-    private Date _started_on;
-    private int _total_students;
+    private String _added_on;
     private boolean _hidden;
     private boolean _added;
 
@@ -33,7 +31,7 @@ public class Subject {
     }
 
     // Constructor with parameters
-    public Subject(String _id, String _name, String _class, String _teacher_ref, Teacher _teacher, String _school_ref, School _school, String _join_url, String _start_time, Date _started_on, int _total_students, boolean _hidden, boolean _added) {
+    public Subject(String _id, String _name, String _class, String _teacher_ref, Teacher _teacher, String _school_ref, School _school, String _join_url, String _start_time, String _added_on, boolean _hidden, boolean _added) {
         this._id = _id;
         this._name = _name;
         this._class = _class;
@@ -43,8 +41,7 @@ public class Subject {
         this._school = _school;
         this._join_url = _join_url;
         this._start_time = _start_time;
-        this._started_on = _started_on;
-        this._total_students = _total_students;
+        this._added_on = _added_on;
         this._hidden = _hidden;
         this._added = _added;
     }
@@ -122,20 +119,12 @@ public class Subject {
         this._start_time = _start_time;
     }
 
-    public Date get_started_on() {
-        return _started_on;
+    public String get_added_on() {
+        return _added_on;
     }
 
-    public void set_started_on(Date _started_on) {
-        this._started_on = _started_on;
-    }
-
-    public int get_total_students() {
-        return _total_students;
-    }
-
-    public void set_total_students(int _total_students) {
-        this._total_students = _total_students;
+    public void set_added_on(String _added_on) {
+        this._added_on = _added_on;
     }
 
     public boolean is_hidden() {
@@ -167,36 +156,32 @@ public class Subject {
                 ", _school=" + _school +
                 ", _join_url='" + _join_url + '\'' +
                 ", _start_time='" + _start_time + '\'' +
-                ", _started_on=" + _started_on +
-                ", _total_students=" + _total_students +
+                ", _added_on='" + _added_on + '\'' +
                 ", _hidden=" + _hidden +
                 ", _added=" + _added +
                 '}';
     }
 
-
     // Overriding equals() method
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Subject subject = (Subject) o;
-        return get_total_students() == subject.get_total_students() &&
-                is_hidden() == subject.is_hidden() &&
-                is_added() == subject.is_added() &&
-                Objects.equals(get_id(), subject.get_id()) &&
-                Objects.equals(get_name(), subject.get_name()) &&
-                Objects.equals(get_class(), subject.get_class()) &&
-                Objects.equals(get_teacher_ref(), subject.get_teacher_ref()) &&
-                Objects.equals(get_teacher(), subject.get_teacher()) &&
-                Objects.equals(get_school_ref(), subject.get_school_ref()) &&
-                Objects.equals(get_school(), subject.get_school()) &&
-                Objects.equals(get_join_url(), subject.get_join_url()) &&
-                Objects.equals(get_start_time(), subject.get_start_time()) &&
-                Objects.equals(get_started_on(), subject.get_started_on());
+        return _hidden == subject._hidden &&
+                _added == subject._added &&
+                Objects.equals(_id, subject._id) &&
+                Objects.equals(_name, subject._name) &&
+                Objects.equals(_class, subject._class) &&
+                Objects.equals(_teacher_ref, subject._teacher_ref) &&
+                Objects.equals(_teacher, subject._teacher) &&
+                Objects.equals(_school_ref, subject._school_ref) &&
+                Objects.equals(_school, subject._school) &&
+                Objects.equals(_join_url, subject._join_url) &&
+                Objects.equals(_start_time, subject._start_time) &&
+                Objects.equals(_added_on, subject._added_on);
     }
+
 
 
     // DiffUtil.ItemCallback
@@ -217,18 +202,10 @@ public class Subject {
      * ----------------------------------------------------------------------
      * Function to process the subjects data
      */
-    public static List<Subject> processedSubjects(List<Subject> subjects, User user) {
+    public static List<Subject> processedSubjects(List<Subject> subjects, Teacher teacher) {
         List<String> subject_ids = null;
         List<Subject> processedSubjects = new ArrayList<>();
 
-        if (user != null) {
-            subject_ids = user.get_subjects_ref();
-        }
-
-        for (Subject subject: subjects) {
-            subject.set_added(isAlreadyAdded(subject_ids, subject.get_id()));
-            processedSubjects.add(subject);
-        }
 
         return processedSubjects;
     }

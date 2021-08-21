@@ -6,21 +6,22 @@ import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 public class Submission {
     private String _id;
-    private List<String> _images;
-    private List<String> _docs;
+    private String[] _images;
+    private String[] _docs;
     private String _texts;
     private String _assignment_ref;
     private Assignment _assignment;
     private String _student_ref;
     private User _student;
-    private Date _submitted_date;
-    private Date _checked_date;
+    private String _submitted_date;
+    private String _checked_date;
     private boolean _checked;
     private String _comment;
 
@@ -29,7 +30,7 @@ public class Submission {
     }
 
     // Constructor with parameters
-    public Submission(String _id, List<String> _images, List<String> _docs, String _texts, String _assignment_ref, Assignment _assignment, String _student_ref, User _student, Date _submitted_date, Date _checked_date, boolean _checked, String _comment) {
+    public Submission(String _id, String[] _images, String[] _docs, String _texts, String _assignment_ref, Assignment _assignment, String _student_ref, User _student, String _submitted_date, String _checked_date, boolean _checked, String _comment) {
         this._id = _id;
         this._images = _images;
         this._docs = _docs;
@@ -53,19 +54,19 @@ public class Submission {
         this._id = _id;
     }
 
-    public List<String> get_images() {
+    public String[] get_images() {
         return _images;
     }
 
-    public void set_images(List<String> _images) {
+    public void set_images(String[] _images) {
         this._images = _images;
     }
 
-    public List<String> get_docs() {
+    public String[] get_docs() {
         return _docs;
     }
 
-    public void set_docs(List<String> _docs) {
+    public void set_docs(String[] _docs) {
         this._docs = _docs;
     }
 
@@ -109,19 +110,19 @@ public class Submission {
         this._student = _student;
     }
 
-    public Date get_submitted_date() {
+    public String get_submitted_date() {
         return _submitted_date;
     }
 
-    public void set_submitted_date(Date _submitted_date) {
+    public void set_submitted_date(String _submitted_date) {
         this._submitted_date = _submitted_date;
     }
 
-    public Date get_checked_date() {
+    public String get_checked_date() {
         return _checked_date;
     }
 
-    public void set_checked_date(Date _checked_date) {
+    public void set_checked_date(String _checked_date) {
         this._checked_date = _checked_date;
     }
 
@@ -146,41 +147,40 @@ public class Submission {
     public String toString() {
         return "Submission{" +
                 "_id='" + _id + '\'' +
-                ", _images=" + _images +
-                ", _docs=" + _docs +
+                ", _images=" + Arrays.toString(_images) +
+                ", _docs=" + Arrays.toString(_docs) +
                 ", _texts='" + _texts + '\'' +
                 ", _assignment_ref='" + _assignment_ref + '\'' +
                 ", _assignment=" + _assignment +
                 ", _student_ref='" + _student_ref + '\'' +
                 ", _student=" + _student +
-                ", _submitted_date=" + _submitted_date +
-                ", _checked_date=" + _checked_date +
+                ", _submitted_date='" + _submitted_date + '\'' +
+                ", _checked_date='" + _checked_date + '\'' +
                 ", _checked=" + _checked +
                 ", _comment='" + _comment + '\'' +
                 '}';
     }
 
     // Overriding equals() method
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Submission that = (Submission) o;
-        return is_checked() == that.is_checked() &&
-                Objects.equals(get_id(), that.get_id()) &&
-                Objects.equals(get_images(), that.get_images()) &&
-                Objects.equals(get_docs(), that.get_docs()) &&
-                Objects.equals(get_texts(), that.get_texts()) &&
-                Objects.equals(get_assignment_ref(), that.get_assignment_ref()) &&
-                Objects.equals(get_assignment(), that.get_assignment()) &&
-                Objects.equals(get_student_ref(), that.get_student_ref()) &&
-                Objects.equals(get_student(), that.get_student()) &&
-                Objects.equals(get_submitted_date(), that.get_submitted_date()) &&
-                Objects.equals(get_checked_date(), that.get_checked_date()) &&
-                Objects.equals(get_comment(), that.get_comment());
+        return _checked == that._checked &&
+                Objects.equals(_id, that._id) &&
+                Arrays.equals(_images, that._images) &&
+                Arrays.equals(_docs, that._docs) &&
+                Objects.equals(_texts, that._texts) &&
+                Objects.equals(_assignment_ref, that._assignment_ref) &&
+                Objects.equals(_assignment, that._assignment) &&
+                Objects.equals(_student_ref, that._student_ref) &&
+                Objects.equals(_student, that._student) &&
+                Objects.equals(_submitted_date, that._submitted_date) &&
+                Objects.equals(_checked_date, that._checked_date) &&
+                Objects.equals(_comment, that._comment);
     }
+
 
 
     // DiffUtil.ItemCallback

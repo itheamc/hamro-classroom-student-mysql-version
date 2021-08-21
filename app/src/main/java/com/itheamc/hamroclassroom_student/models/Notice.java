@@ -14,7 +14,7 @@ public class Notice {
     private School _school;
     private String[] _classes;      // list of classes to show this notice
     private String _teacher_ref;
-    private User _teacher;
+    private Teacher _teacher;
     private String _notified_on;
 
 
@@ -24,7 +24,7 @@ public class Notice {
 
 
     // Constructor with parameters
-    public Notice(String _id, String _title, String _desc, String _school_ref, School _school, String[] _classes, String _teacher_ref, User _teacher, String _notified_on) {
+    public Notice(String _id, String _title, String _desc, String _school_ref, School _school, String[] _classes, String _teacher_ref, Teacher _teacher, String _notified_on) {
         this._id = _id;
         this._title = _title;
         this._desc = _desc;
@@ -93,11 +93,11 @@ public class Notice {
         this._teacher_ref = _teacher_ref;
     }
 
-    public User get_teacher() {
+    public Teacher get_teacher() {
         return _teacher;
     }
 
-    public void set_teacher(User _teacher) {
+    public void set_teacher(Teacher _teacher) {
         this._teacher = _teacher;
     }
 

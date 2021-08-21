@@ -3,9 +3,11 @@ package com.itheamc.hamroclassroom_student.models;
 import android.widget.ImageButton;
 
 import androidx.databinding.BindingAdapter;
+import androidx.recyclerview.widget.DiffUtil;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class User {
     private String _id;
@@ -21,18 +23,15 @@ public class User {
     private String _roll_number;
     private String _school_ref;
     private School _school;
-    private List<String> _subjects_ref;
-    private List<Subject> _subjects;
-    private List<String> _submissions_ref;
-    private List<Submission> _submissions;
-    private Date _joined_on;
+    private String _joined_on;
 
     // Constructor
     public User() {
     }
 
+
     // Constructor with parameters
-    public User(String _id, String _name, String _gender, String _image, String _phone, String _email, String _address, String _guardian, String _class, String _section, String _roll_number, String _school_ref, School _school, List<String> _subjects_ref, List<Subject> _subjects, List<String> _submissions_ref, List<Submission> _submissions, Date _joined_on) {
+    public User(String _id, String _name, String _gender, String _image, String _phone, String _email, String _address, String _guardian, String _class, String _section, String _roll_number, String _school_ref, School _school, String _joined_on) {
         this._id = _id;
         this._name = _name;
         this._gender = _gender;
@@ -46,10 +45,6 @@ public class User {
         this._roll_number = _roll_number;
         this._school_ref = _school_ref;
         this._school = _school;
-        this._subjects_ref = _subjects_ref;
-        this._subjects = _subjects;
-        this._submissions_ref = _submissions_ref;
-        this._submissions = _submissions;
         this._joined_on = _joined_on;
     }
 
@@ -158,46 +153,13 @@ public class User {
         this._school = _school;
     }
 
-    public List<String> get_subjects_ref() {
-        return _subjects_ref;
-    }
-
-    public void set_subjects_ref(List<String> _subjects_ref) {
-        this._subjects_ref = _subjects_ref;
-    }
-
-    public List<Subject> get_subjects() {
-        return _subjects;
-    }
-
-    public void set_subjects(List<Subject> _subjects) {
-        this._subjects = _subjects;
-    }
-
-    public List<String> get_submissions_ref() {
-        return _submissions_ref;
-    }
-
-    public void set_submissions_ref(List<String> _submissions_ref) {
-        this._submissions_ref = _submissions_ref;
-    }
-
-    public List<Submission> get_submissions() {
-        return _submissions;
-    }
-
-    public void set_submissions(List<Submission> _submissions) {
-        this._submissions = _submissions;
-    }
-
-    public Date get_joined_on() {
+    public String get_joined_on() {
         return _joined_on;
     }
 
-    public void set_joined_on(Date _joined_on) {
+    public void set_joined_on(String _joined_on) {
         this._joined_on = _joined_on;
     }
-
 
     // Overriding toString() method
     @Override
@@ -216,13 +178,13 @@ public class User {
                 ", _roll_number='" + _roll_number + '\'' +
                 ", _school_ref='" + _school_ref + '\'' +
                 ", _school=" + _school +
-                ", _subjects_ref=" + _subjects_ref +
-                ", _subjects=" + _subjects +
-                ", _submissions_ref=" + _submissions_ref +
-                ", _submissions=" + _submissions +
-                ", _joined_on=" + _joined_on +
+                ", _joined_on='" + _joined_on + '\'' +
                 '}';
     }
+
+
+    // equals() Method
+
 
     // Binding Adapter
     @BindingAdapter("android:imageButtonSrc")
