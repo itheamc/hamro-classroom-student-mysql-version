@@ -61,24 +61,12 @@ public class RequestHandler {
 
     // GET REQUEST
     public static Request teacherGetRequestById(@NonNull String _id) {
-        return new Request.Builder().url(PathHandler.TEACHERS_PATH + _id).get().build();
+        return new Request.Builder().url(PathHandler.TEACHERS_PATH + _id).addHeader("by", "id").get().build();
     }
 
-    // POST REQUEST
-    public static Request teacherPostRequest(@NonNull Teacher teacher) {
-        RequestBody requestBody = new FormBody.Builder()
-                .add("_id", teacher.get_id())
-                .add("_name", teacher.get_name())
-                .add("_gender", teacher.get_gender())
-                .add("_image", teacher.get_image())
-                .add("_phone", teacher.get_phone())
-                .add("_email", teacher.get_email())
-                .add("_address", teacher.get_address())
-                .add("_school", teacher.get_schools_ref())
-                .add("_joined_on", teacher.get_joined_on())
-                .build();
-
-        return new Request.Builder().url(PathHandler.TEACHERS_PATH).post(requestBody).build();
+    // GET REQUEST
+    public static Request teacherGetRequestBySchool(@NonNull String _schoolId) {
+        return new Request.Builder().url(PathHandler.TEACHERS_PATH + _schoolId).addHeader("by", "school").get().build();
     }
 
 
@@ -116,6 +104,30 @@ public class RequestHandler {
 
         return new Request.Builder().url(PathHandler.STUDENTS_PATH).post(requestBody).build();
     }
+
+
+     /*
+    ------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------
+    Requests for Student Subjects
+     */
+
+    // GET REQUEST
+    public static Request studentSubjectsDeleteRequestById(@NonNull String _id) {
+        return new Request.Builder().url(PathHandler.STUDENTS_SUBJECT_PATH + _id).delete().build();
+    }
+
+    // POST REQUEST
+    public static Request studentSubjectsPostRequest(@NonNull String _id, @NonNull String _studentId, @NonNull String _subjectId) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("_id", _id)
+                .add("_student", _studentId)
+                .add("_subject", _subjectId)
+                .build();
+
+        return new Request.Builder().url(PathHandler.STUDENTS_PATH).post(requestBody).build();
+    }
+
 
 
     /*
@@ -298,6 +310,11 @@ public class RequestHandler {
     // GET REQUEST
     public static Request noticeGetRequestById(@NonNull String _id) {
         return new Request.Builder().url(PathHandler.NOTICES_PATH + _id).get().build();
+    }
+
+    // GET REQUEST
+    public static Request noticeGetRequestBySchoolAndClass(@NonNull String schoolId, @NonNull String _class) {
+        return new Request.Builder().url(PathHandler.NOTICES_PATH + schoolId + "___" + _class).get().build();
     }
 
     // POST REQUEST

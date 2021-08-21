@@ -151,6 +151,7 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
         // If User retrieved from the Firestore
         if (user != null) {
             viewModel.setUser(user);
+            viewModel.setSchool(user.get_school());
             setUserData(user);
         }
     }

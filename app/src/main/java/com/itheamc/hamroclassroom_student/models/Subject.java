@@ -202,7 +202,7 @@ public class Subject {
      * ----------------------------------------------------------------------
      * Function to process the subjects data
      */
-    public static List<Subject> processedSubjects(List<Subject> subjects, Teacher teacher) {
+    public static List<Subject> processedSubjects(List<Subject> subjects, User user) {
         List<String> subject_ids = null;
         List<Subject> processedSubjects = new ArrayList<>();
 

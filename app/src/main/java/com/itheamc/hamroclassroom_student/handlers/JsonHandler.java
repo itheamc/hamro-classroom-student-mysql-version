@@ -258,6 +258,20 @@ public class JsonHandler {
         return schools;
     }
 
+    // Teachers Response Handler
+    public static List<Teacher> getTeachers(@NonNull JSONObject jsonObject) throws JSONException {
+        List<Teacher> teachers = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.getJSONArray("teachers");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jo = jsonArray.getJSONObject(i);
+
+            // Adding School
+            teachers.add(getTeacher(jo));
+        }
+
+        return teachers;
+    }
+
 
     // Subjects Response Handler
     public static List<Subject> getSubjects(@NonNull JSONObject jsonObject) throws JSONException {

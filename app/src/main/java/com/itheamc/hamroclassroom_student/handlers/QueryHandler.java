@@ -15,21 +15,32 @@ import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+
 public class QueryHandler {
     private final Handler handler;
-    private final QueryCallbacks callbacks;
     private final ExecutorService executorService;
+    private final QueryCallbacks callbacks;
+    private final OkHttpClient client;
 
     // Constructor
     public QueryHandler(@NonNull QueryCallbacks callbacks) {
-        this.callbacks = callbacks;
         this.handler = HandlerCompat.createAsync(Looper.getMainLooper());
         this.executorService = Executors.newFixedThreadPool(4);
+        this.callbacks = callbacks;
+        this.client = new OkHttpClient();
     }
 
     // Getter for instance
@@ -38,24 +49,85 @@ public class QueryHandler {
     }
 
     /**
-     * Function to get user info from the cloud Firestore
+     * Function to get user info from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getUser(String userId) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.studentGetRequestById(userId)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            User user = JsonHandler.getStudent(jsonObject);
+                            notifySuccess(user,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to store user in the Firestore
+     * Function to store user in the Database
      * --------------------------------------------------------------------------------------
      */
     public void storeUser(User user) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.studentPostRequest(user)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.getString("message").equals("success")) {
+                                notifySuccess(jsonObject.getString("message"));
+                            } else {
+                                notifyFailure(new Exception(jsonObject.getString("message")));
+                            }
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
     /**
-     * Function to update user in the Firestore
+     * Function to update user in the Database
      * --------------------------------------------------------------------------------------
      */
     public void updateUser(String _uid, Map<String, Object> data) {
@@ -63,68 +135,285 @@ public class QueryHandler {
     }
 
     /**
-     * Function to add subject to user in the Firestore
+     * Function to add subject to user in the Database
      * --------------------------------------------------------------------------------------
      */
-    public void addSubjectToUser(String _uid, String data) {
+    public void addSubjectToUser(String _id, String _studentId, String _subId) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.studentSubjectsPostRequest(_id, _studentId, _subId)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.getString("message").equals("success")) {
+                                notifySuccess(jsonObject.getString("message"));
+                            } else {
+                                notifyFailure(new Exception(jsonObject.getString("message")));
+                            }
+                            return;
+                        }
+                        notifyFailure(new Exception("Unable to store"));
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
     /**
-     * Function to remove subject from user in the Firestore
+     * Function to remove subject from user in the Database
      * --------------------------------------------------------------------------------------
      */
-    public void removeSubjectToUser(String _uid, String data) {
+    public void removeSubjectToUser(String student_sub_id) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.studentSubjectsDeleteRequestById(student_sub_id)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.getString("message").equals("success")) {
+                                notifySuccess(jsonObject.getString("message"));
+                            } else {
+                                notifyFailure(new Exception(jsonObject.getString("message")));
+                            }
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
-
     /**
-     * Function to add submission Id to user in the Firestore
-     * --------------------------------------------------------------------------------------
-     */
-    public void addSubmissionToUser(String _uid, String submissionId) {
-
-    }
-
-    /**
-     * Function to get subjects list from the cloud firestore
+     * Function to get subjects list from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getSubjects(String schoolId, String _class) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.subjectGetRequestBySchoolIdAndClass(schoolId, _class)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<Subject> subjects = JsonHandler.getSubjects(jsonObject);
+                            notifySuccess(null,
+                                    null,
+                                    null,
+                                    subjects,
+                                    null,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to get assignments list from the cloud firestore
+     * Function to get assignments list from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getAssignments(String subjectId) {
+    public void getAssignmentsBySubject(String subjectId) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.assignmentGetRequestBySubjectId(subjectId)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<Assignment> assignments = JsonHandler.getAssignments(jsonObject);
+                            notifySuccess(null,
+                                    null,
+                                    null,
+                                    null,
+                                    assignments,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to get assignment from the cloud firestore
+     * Function to get assignments list from the Database
+     * --------------------------------------------------------------------------------------
+     */
+    public void getAssignments(String schoolId, String _class) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.assignmentGetRequestBySchoolIdAndClass(schoolId, _class)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<Assignment> assignments = JsonHandler.getAssignments(jsonObject);
+                            notifySuccess(null,
+                                    null,
+                                    null,
+                                    null,
+                                    assignments,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
+    }
+
+
+    /**
+     * Function to get assignment from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getAssignment(String assignment_ref) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.assignmentGetRequestById(assignment_ref)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            Assignment assignment = JsonHandler.getAssignment(jsonObject);
+
+                            notifySuccess(null,
+                                    null,
+                                    null,
+                                    null,
+                                    assignment,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to add submissions in the Firestore
+     * Function to add submissions in the Database
      * --------------------------------------------------------------------------------------
      */
     public void addSubmission(Submission submission) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.submissionPostRequest(submission)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.getString("message").equals("success")) {
+                                notifySuccess(jsonObject.getString("message"));
+                            } else {
+                                notifyFailure(new Exception(jsonObject.getString("message")));
+                            }
+                            return;
+                        }
+                        notifyFailure(new Exception("Unable to add"));
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to update submission in the Firestore
+     * Function to update submission in the Database
      * --------------------------------------------------------------------------------------
      */
     public void updateSubmission(String subjectId, String assignmentId, String submissionId, Map<String, Object> data) {
@@ -133,20 +422,91 @@ public class QueryHandler {
 
 
     /**
-     * Function to get submission from the Firestore
+     * Function to get submission from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getSubmissions(String userId) {
+    public void getSubmissions(String studentId) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.submissionGetRequestByStudentId(studentId)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<Submission> submissions = JsonHandler.getSubmissions(jsonObject);
+                            notifySuccess(null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    submissions,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to get teacher from the Firestore
+     * Function to get teacher from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getTeacher(String teacherId) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.teacherGetRequestById(teacherId)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            Teacher teacher = JsonHandler.getTeacher(jsonObject);
+
+                            notifySuccess(null,
+                                    null,
+                                    teacher,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
@@ -154,32 +514,173 @@ public class QueryHandler {
      * Function to get teachers
      */
     public void getTeachers(String _school_ref) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.teacherGetRequestBySchool(_school_ref)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<Teacher> teachers = JsonHandler.getTeachers(jsonObject);
+                            notifySuccess(null,
+                                    null,
+                                    teachers,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
     /**
-     * Function to get notices list from the cloud firestore
+     * Function to get notices list from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getNotices(String schoolId, String _class) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.noticeGetRequestBySchoolAndClass(schoolId, _class)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<Notice> notices = JsonHandler.getNotices(jsonObject);
+                            notifySuccess(null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    notices);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
     /**
-     * Function to get schools list from the cloud firestore
+     * Function to get schools list from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getSchools() {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.GET_REQUEST_SCHOOLS).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            List<School> schools = JsonHandler.getSchools(jsonObject);
+                            notifySuccess(null,
+                                    schools,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
     /**
-     * Function to get schools list from the cloud firestore
+     * Function to get schools list from the Database
      * --------------------------------------------------------------------------------------
      */
     public void getSchool(String _schoolId) {
+        executorService.execute(() -> {
+            client.newCall(RequestHandler.schoolGetRequestById(_schoolId)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    notifyFailure(e);
+                }
 
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (response.isSuccessful()) {
+                            if (jsonObject.has("message")) {
+                                notifySuccess(jsonObject.getString("message"));
+                                return;
+                            }
+
+                            School school = JsonHandler.getSchool(jsonObject);
+
+                            notifySuccess(null,
+                                    school,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                            return;
+                        }
+
+                        notifyFailure(new Exception(jsonObject.getString("message")));
+
+                    } catch (Exception e) {
+                        notifyFailure(e);
+                    }
+                }
+            });
+        });
     }
 
 
@@ -187,7 +688,7 @@ public class QueryHandler {
      * Function to notify whether getUser() is success or failure
      * --------------------------------------------------------------------------------------
      */
-    private void notifyOnSuccess(User user,
+    private void notifySuccess(List<User> users,
                                  List<School> schools,
                                  List<Teacher> teachers,
                                  List<Subject> subjects,
@@ -199,7 +700,27 @@ public class QueryHandler {
         });
     }
 
-    private void notifyOnFailure(Exception e) {
+
+    private void notifySuccess(User user,
+                               School school,
+                               Teacher teacher,
+                               Subject subject,
+                               Assignment assignment,
+                               Submission submission,
+                               Notice notice) {
+        handler.post(() -> {
+
+        });
+    }
+
+
+    private void notifySuccess(String message) {
+        handler.post(() -> {
+
+        });
+    }
+
+    private void notifyFailure(Exception e) {
         handler.post(() -> {
 
         });
