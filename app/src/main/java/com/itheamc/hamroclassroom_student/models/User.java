@@ -5,6 +5,8 @@ import android.widget.ImageButton;
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -196,8 +198,8 @@ public class User {
     // Binding Adapter
     @BindingAdapter("android:imageButtonSrc")
     public static void setImage(ImageButton imageButton, String imageUrl) {
-//        Picasso.get()
-//                .load(imageUrl)
-//                .into(imageButton);
+        Picasso.get()
+                .load(imageUrl)
+                .into(imageButton);
     }
 }

@@ -1,5 +1,7 @@
 package com.itheamc.hamroclassroom_student.models;
 
+import java.util.Objects;
+
 public class UserSubject {
     private String _id;
     private String _user;
@@ -50,4 +52,17 @@ public class UserSubject {
                 ", _subject='" + _subject + '\'' +
                 '}';
     }
+
+    // equals()
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserSubject subject = (UserSubject) o;
+        return Objects.equals(_id, subject._id) &&
+                Objects.equals(_user, subject._user) &&
+                Objects.equals(_subject, subject._subject);
+    }
+
+
 }

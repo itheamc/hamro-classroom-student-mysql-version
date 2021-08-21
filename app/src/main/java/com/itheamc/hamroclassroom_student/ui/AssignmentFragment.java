@@ -22,9 +22,6 @@ import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 public class AssignmentFragment extends Fragment {
     private static final String TAG = "AssignmentFragment";
     private FragmentAssignmentBinding assignmentBinding;
-    private MainViewModel viewModel;
-    private NavController navController;
-    private SliderAdapter sliderAdapter;
 
     public AssignmentFragment() {
         // Required empty public constructor
@@ -50,12 +47,12 @@ public class AssignmentFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initializing NavController and ViewModel
-        navController = Navigation.findNavController(view);
-        viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        NavController navController = Navigation.findNavController(view);
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
 
         // Initializing slider adapter...
-        sliderAdapter = new SliderAdapter();
+        SliderAdapter sliderAdapter = new SliderAdapter();
         assignmentBinding.assignmentViewPager.setAdapter(sliderAdapter);
 
         Assignment assignment = viewModel.getAssignment();
@@ -66,7 +63,7 @@ public class AssignmentFragment extends Fragment {
 
     }
 
-    // Overrided to manage the view destroy
+    // View Destroy
     @Override
     public void onDestroyView() {
         super.onDestroyView();

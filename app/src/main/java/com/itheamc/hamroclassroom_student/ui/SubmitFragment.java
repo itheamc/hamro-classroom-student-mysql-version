@@ -403,15 +403,11 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
 
     /**
      * ------------------------------------------------------------------------------------------
-     * This method is implemented from the FirestoreCallbacks
-     * -  Due to the same name and same arguments onFailure(Exception e) there is a only one
-     * on failure method for StorageCallbacks and FirestoreCallbacks
-     * - If something went wrong above OnFailure(Exception e) will be triggered
+     * This method is implemented from the QueryCallbacks
      * ------------------------------------------------------------------------------------------
      */
-
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (submitBinding == null) return;
 
         if (!is_submitted) {
@@ -427,6 +423,27 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
         is_submitted = false;
         clearAllInputs();
     }
+
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+
+    }
+
+    @Override
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
+        if (submitBinding == null) return;
+        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
+        is_uploading = false;
+        is_submitted = false;
+        uploadCount = 0;
+        handleViews();
+    }
+
 
     /*
     Overrided function to view destroy

@@ -22,9 +22,6 @@ import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 public class SubmissionFragment extends Fragment {
     private static final String TAG = "SubmissionFragment";
     private FragmentSubmissionBinding submissionBinding;
-    private MainViewModel viewModel;
-    private NavController navController;
-    private SliderAdapter sliderAdapter;
 
 
     // Constructor
@@ -52,12 +49,12 @@ public class SubmissionFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initializing NavController and ViewModel
-        navController = Navigation.findNavController(view);
-        viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        NavController navController = Navigation.findNavController(view);
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
 
         // Initializing slider adapter...
-        sliderAdapter = new SliderAdapter();
+        SliderAdapter sliderAdapter = new SliderAdapter();
         submissionBinding.submissionViewPager.setAdapter(sliderAdapter);
 
         Submission submission = viewModel.getSubmission();

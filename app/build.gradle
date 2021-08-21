@@ -50,4 +50,7 @@ dependencies {
     // Okhttp
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
 
+    // Picasso Image Library
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }

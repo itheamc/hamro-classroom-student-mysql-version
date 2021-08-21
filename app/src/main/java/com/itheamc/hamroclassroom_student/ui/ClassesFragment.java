@@ -51,7 +51,6 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
     private boolean isFetching = false;
 
 
-
     public ClassesFragment() {
         // Required empty public constructor
     }
@@ -102,7 +101,6 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         classesBinding.classesSwipeRefreshLayout.setOnRefreshListener(() -> {
             if (isFetching) return;
             viewModel.setSubjects(null);
-            viewModel.setTeachers(null);
             checksUser();
 
         });
@@ -114,14 +112,13 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
     private void checksUser() {
         User user = viewModel.getUser();
         if (user == null) {
-            if (getActivity() != null) {
-                isFetching = true;
-                QueryHandler.getInstance(this).getUser(LocalStorage.getInstance(getActivity()).getUserId());
-                ViewUtils.showProgressBar(classesBinding.classesOverlayLayLayout);
-            }
-        } else {
-            retrieveSubjects();
+            if (getActivity() == null) return;
+            isFetching = true;
+            QueryHandler.getInstance(this).getUser(LocalStorage.getInstance(getActivity()).getUserId());
+            showProgress();
+            return;
         }
+        retrieveSubjects();
     }
 
     /**
@@ -131,28 +128,38 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         User user = viewModel.getUser();
         List<Subject> subjects = viewModel.getSubjects();
         if (subjects != null && !subjects.isEmpty()) {
-            if (subjects.get(0).get_teacher() != null) {
-                ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
-                classesAdapter.submitList(Subject.filterSubjects(subjects));
-                isFetching = false;
-                return;
-            }
-            isFetching = true;
-            fetchTeachers();
-            ViewUtils.showProgressBar(classesBinding.classesOverlayLayLayout);
+            hideProgress();
+            classesAdapter.submitList(Subject.filterSubjects(subjects));
+            isFetching = false;
             return;
         }
 
         isFetching = true;
         QueryHandler.getInstance(this).getSubjects(user.get_school_ref(), user.get_class());
+        showProgress();
+    }
+
+
+    /**
+     * Function to show progressbar
+     */
+    private void showProgress() {
         ViewUtils.showProgressBar(classesBinding.classesOverlayLayLayout);
     }
 
+    /**
+     * Function to hide progressbar
+     */
+    private void hideProgress() {
+        ViewUtils.handleRefreshing(classesBinding.classesSwipeRefreshLayout);
+        ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
+    }
 
 
     /**
      * -----------------------------------------------------------------------------
      * These are the methods overrided from the SubjectCallbacks
+     *
      * @param _position - It is the position of the clicked item
      */
 
@@ -163,8 +170,8 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
 
     @Override
     public void onJoinClassClick(int _position) {
-        List<Subject> subjects =  Subject.filterSubjects(viewModel.getSubjects());
-        Subject subject= subjects.get(_position);
+        List<Subject> subjects = Subject.filterSubjects(viewModel.getSubjects());
+        Subject subject = subjects.get(_position);
         String joinUrl = null;
         if (subject == null) return;
 
@@ -175,7 +182,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         if (!joinUrl.contains("https")) joinUrl = "https://" + joinUrl;
 
         Uri uri = Uri.parse(joinUrl);
-        Intent intent= new Intent(Intent.ACTION_VIEW,uri);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
 
@@ -184,8 +191,8 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         // Gets a handle to the clipboard service.
         if (getActivity() == null) return;
 
-        List<Subject> subjects =  Subject.filterSubjects(viewModel.getSubjects());
-        Subject subject= subjects.get(_position);
+        List<Subject> subjects = Subject.filterSubjects(viewModel.getSubjects());
+        Subject subject = subjects.get(_position);
         String joinUrl = null;
         if (subject == null) return;
 
@@ -219,76 +226,41 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
 
     /**
      * -------------------------------------------------------------------------
-     * These are the methods overrided from the FirestoreCallbacks
-     * @param user - it is the instance of the user
-     * @param schools - it is the instance of the List<School>
-     * @param subjects - it is the instance of the List<Subject>
-     * @param assignments - it is the instance of the List<Assignment>
-     * @param submissions - it is the instance of the List<Submission>
-     * @param notices - it is the instance of the List<Notice>
+     * These are the methods overrided from the QueryCallbacks
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+        if (classesBinding == null) return;
+
+        // If Subjects retrieve from the firestore
+        if (subjects != null) {
+            handleSubjects(subjects);
+        }
+
+        hideProgress();
+    }
+
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
         if (classesBinding == null) return;
 
         // If User retrieved from the Firestore
         if (user != null) {
             viewModel.setUser(user);
             retrieveSubjects();
-            return;
         }
-
-        // If Subjects retrieve from the firestore
-        if (subjects != null) {
-            if (!subjects.isEmpty()) {
-                viewModel.setSubjects(subjects);
-                fetchTeachers();
-                return;
-            }
-            ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
-            ViewUtils.handleRefreshing(classesBinding.classesSwipeRefreshLayout);
-            return;
-        }
-
-        // If Assignment is retrieved
-        if (teachers != null) {
-            handleTeachers(teachers);
-            return;
-        }
-
-        ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
-        ViewUtils.handleRefreshing(classesBinding.classesSwipeRefreshLayout);
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
         if (classesBinding == null) return;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), e.getMessage());
-        ViewUtils.handleRefreshing(classesBinding.classesSwipeRefreshLayout);
-        ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
-    }
-
-
-    /**
-     * Function to retrieve teacher and add to the subject
-     */
-    private void fetchTeachers() {
-        List<Teacher> teachers = viewModel.getTeachers();
-        if (teachers != null) {
-            handleTeachers(teachers);
-            return;
-        }
-
-        String _school_ref = viewModel.getUser().get_school_ref();
-        QueryHandler.getInstance(this).getTeachers(_school_ref);
-    }
-
-
-    /**
-     * Function to handle teachers
-     */
-    private void handleTeachers(List<Teacher> _teachers) {
-        handleSubjects(viewModel.addTeacherToSubject(_teachers));
+        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
+        hideProgress();
     }
 
 
@@ -297,15 +269,17 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
      * Function to handle subjects data
      */
     private void handleSubjects(List<Subject> subjects) {
+        if (subjects == null) {
+            hideProgress();
+            return;
+        }
+
         User u = viewModel.getUser();
-        List<Subject> processedSubjects =  Subject.processedSubjects(subjects, u);
-
-        ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
-        ViewUtils.handleRefreshing(classesBinding.classesSwipeRefreshLayout);
-
+        List<Subject> processedSubjects = Subject.processedSubjects(subjects, u);
         viewModel.setSubjects(processedSubjects);
         classesAdapter.submitList(Subject.filterSubjects(processedSubjects));
         isFetching = false;
+        hideProgress();
     }
 
 

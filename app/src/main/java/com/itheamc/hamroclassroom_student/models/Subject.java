@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 
+import com.squareup.picasso.Picasso;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -203,9 +205,13 @@ public class Subject {
      * Function to process the subjects data
      */
     public static List<Subject> processedSubjects(List<Subject> subjects, User user) {
-        List<String> subject_ids = null;
+        List<UserSubject> userSubjects = user.get_subjects();
         List<Subject> processedSubjects = new ArrayList<>();
 
+        for (Subject subject: subjects) {
+            subject.set_added(isAlreadyAdded(userSubjects, subject.get_id()));
+            processedSubjects.add(subject);
+        }
 
         return processedSubjects;
     }
@@ -230,17 +236,17 @@ public class Subject {
 
     /**
      * Function to check if subject is already added
-     * @param subjectIds - It is the list of subjects id
+     * @param userSubjects - It is the list of user subjects
      * @param _id - It is the unique id of the subject
      * @return - true or false
      */
-    public static boolean isAlreadyAdded(List<String> subjectIds, String _id) {
+    public static boolean isAlreadyAdded(List<UserSubject> userSubjects, String _id) {
         boolean is_already_added = false;
 
-        if (subjectIds == null || subjectIds.isEmpty()) return false;
+        if (userSubjects == null || userSubjects.isEmpty()) return false;
 
-        for (String s: subjectIds) {
-            if (!_id.equals(s)) continue;
+        for (UserSubject subject: userSubjects) {
+            if (!_id.equals(subject.get_subject())) continue;
 
             is_already_added = true;
             break;
@@ -252,8 +258,8 @@ public class Subject {
     // Binding Adapters
     @BindingAdapter("android:imageSource")
     public static void setImage(ImageView imageView, String _imageUrl) {
-//        Picasso.get()
-//                .load(_imageUrl)
-//                .into(imageView);
+        Picasso.get()
+                .load(_imageUrl)
+                .into(imageView);
     }
 }

@@ -697,7 +697,7 @@ public class QueryHandler {
                                  List<Submission> submissions,
                                  List<Notice> notices) {
         handler.post(() -> {
-
+            callbacks.onQuerySuccess(users, schools, teachers, subjects, assignments, submissions, notices);
         });
     }
 
@@ -710,20 +710,20 @@ public class QueryHandler {
                                Submission submission,
                                Notice notice) {
         handler.post(() -> {
-
+            callbacks.onQuerySuccess(user, school, teacher, subject, assignment, submission, notice);
         });
     }
 
 
     private void notifySuccess(String message) {
         handler.post(() -> {
-
+            callbacks.onQuerySuccess(message);
         });
     }
 
     private void notifyFailure(Exception e) {
         handler.post(() -> {
-
+            callbacks.onQueryFailure(e);
         });
     }
 }

@@ -170,13 +170,8 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
      * @param notices - list of notices got from the database
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (noticesBinding == null) return;
-        if (user != null) {
-            viewModel.setUser(user);
-            retrieveNotices(user);
-            return;
-        }
 
         if (notices != null) {
             viewModel.setNotices(notices);
@@ -191,7 +186,21 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+        if (noticesBinding == null) return;
+        if (user != null) {
+            viewModel.setUser(user);
+            retrieveNotices(user);;
+        }
+    }
+
+    @Override
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
         if (noticesBinding == null) return;
         hideProgress();
         NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
@@ -211,4 +220,6 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
         viewModel.setNotice(notice);
         navController.navigate(R.id.action_noticesFragment_to_noticeFragment);
     }
+
+
 }

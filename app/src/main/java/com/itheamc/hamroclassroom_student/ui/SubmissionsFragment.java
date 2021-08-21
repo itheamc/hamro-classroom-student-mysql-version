@@ -42,13 +42,6 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
     private MainViewModel viewModel;
     private SubmissionAdapter submissionAdapter;
 
-    /*
-    Lists
-     */
-    private List<Submission> rawSubmissions;
-    private List<Submission> listOfSubmissions;
-    private int position = 0;
-
 
     public SubmissionsFragment() {
         // Required empty public constructor
@@ -82,17 +75,11 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
         submissionAdapter = new SubmissionAdapter(this);
         submissionsBinding.submissionsRecyclerView.setAdapter(submissionAdapter);
 
-        // Initializing filteredSubjects
-        rawSubmissions = new ArrayList<>();
-        listOfSubmissions = new ArrayList<>();
-
 
         // Setting swipe and refresh layout
         submissionsBinding.submissionsSwipeRefreshLayout.setOnRefreshListener(() -> {
-            rawSubmissions = new ArrayList<>();
-            listOfSubmissions = new ArrayList<>();
-            position = 0;
             ViewUtils.hideViews(submissionsBinding.noSubmissionLayout);
+
             checksUser();
         });
 
@@ -103,11 +90,10 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
 
 
         // Checking if submissions are already stored in the viewModel or not
-        listOfSubmissions = viewModel.getAllSubmissions();
+        List<Submission> listOfSubmissions = viewModel.getAllSubmissions();
         if (listOfSubmissions != null && !listOfSubmissions.isEmpty()) {
             submissionAdapter.submitList(listOfSubmissions);
         } else {
-            listOfSubmissions = new ArrayList<>();
             checksUser();
         }
     }
@@ -125,7 +111,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
             return;
         }
 
-        retrieveSubmissions(user);
+        retrieveSubmissions();
         showProgressBar();
     }
 
@@ -133,25 +119,10 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
     /*
     Function to retrieve submissions
      */
-    private void retrieveSubmissions(User user) {
-        QueryHandler.getInstance(this).getSubmissions(user.get_id());
+    private void retrieveSubmissions() {
+        QueryHandler.getInstance(this).getSubmissions(viewModel.getUser().get_id());
     }
 
-    /*
-    Function to retrieve Assignment
-     */
-    private void retrieveAssignment() {
-        if (position < rawSubmissions.size()) {
-            String assignment_ref = rawSubmissions.get(position).get_assignment_ref();
-            QueryHandler.getInstance(this).getAssignment(assignment_ref);
-            return;
-        }
-
-        hideProgressBar();
-        position = 0;
-        viewModel.setAllSubmissions(listOfSubmissions);
-        submissionAdapter.submitList(listOfSubmissions);
-    }
 
     /*
     Function to hide progressbar
@@ -173,54 +144,40 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
     /**
      * --------------------------------------------------------------------------
      * Function Implemented from the FirestoreCallbacks
-     * @param user - an user object got from the database
-     * @param schools - list of schools got from the database
-     * @param teachers - list of teachers got from the database
-     * @param subjects - list of subjects got from the database
-     * @param assignments - list of assignments got from the database
-     * @param submissions - list of submissions got from the database
-     * @param notices - list of notices got from the database
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (submissionsBinding == null) return;
-
-        if (user != null) {
-            viewModel.setUser(user);
-            retrieveSubmissions(user);
-            return;
-        }
 
         // If submissions is retrieved
         if (submissions != null) {
             if (!submissions.isEmpty()) {
-                rawSubmissions.addAll(submissions);
-                retrieveAssignment();
+                viewModel.setAllSubmissions(submissions);
+                submissionAdapter.submitList(submissions);
                 return;
             }
-            hideProgressBar();
             ViewUtils.visibleViews(submissionsBinding.noSubmissionLayout);
-            return;
         }
-
-        // if assignment is retrieved
-        if (assignments != null) {
-            if (!assignments.isEmpty()) {
-                Submission submission = rawSubmissions.get(position);
-                submission.set_assignment(assignments.get(0));
-                listOfSubmissions.add(submission);
-            }
-
-            position += 1;
-            retrieveAssignment();
-            return;
-        }
-
         hideProgressBar();
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+        if (submissionsBinding == null) return;
+
+        if (user != null) {
+            viewModel.setUser(user);
+            retrieveSubmissions();
+        }
+    }
+
+    @Override
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
         if (submissionsBinding == null) return;
         hideProgressBar();
         if (e.getMessage() == null) return;
@@ -228,8 +185,9 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
             ViewUtils.visibleViews(submissionsBinding.noSubmissionLayout);
             return;
         }
-        if (getContext() != null) NotifyUtils.showToast(getContext(), e.getMessage());
+        if (getContext() != null) NotifyUtils.showToast(getContext(),getString(R.string.went_wrong_message));
     }
+
 
     /**
      * ---------------------------------------------------------------------------
@@ -247,6 +205,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
         if (sub != null) viewModel.setSubmission(sub);
         navController.navigate(R.id.action_submissionsFragment_to_submissionFragment);
     }
+
 
 
     // Overriding function to handle the destroy of view

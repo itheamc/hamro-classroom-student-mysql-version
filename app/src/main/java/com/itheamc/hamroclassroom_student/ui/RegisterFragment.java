@@ -254,41 +254,48 @@ public class RegisterFragment extends Fragment implements QueryCallbacks, School
      * Function to store info on local storage
      * ----------------------------------------------------------------------
      */
-    private void storeInfo(User user) {
+    private void storeInfo() {
         LocalStorage localStorage = null;
+        FirebaseUser user = loginViewModel.getFirebaseUser();
         if (getActivity() != null) localStorage = LocalStorage.getInstance(getActivity());
 
-        if (localStorage == null) return;
-        localStorage.storeUserId(user.get_id());
+        if (localStorage == null || user == null) return;
+        localStorage.storeUserId(loginViewModel.getFirebaseUser().getUid());
     }
 
     /**
      * -------------------------------------------------------------------
-     * These are the methods implemented from the FirestoreCallbacks
+     * These are the methods implemented from the QueryCallbacks
      * -------------------------------------------------------------------
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (registerBinding == null) return;
         if (schools != null) {
             this.schools = new ArrayList<>();
             this.schools = schools;
             schoolAdapter.submitList(this.schools);
             ViewUtils.hideProgressBar(bottomSheetBinding.schoolOverlayLayout);
-            return;
         }
+    }
 
-        if (getActivity() != null) storeInfo(user);
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+
+    }
+
+    @Override
+    public void onQuerySuccess(String message) {
+        if (registerBinding == null) return;
+        storeInfo();
         ViewUtils.hideProgressBar(registerBinding.overlayLayout);
         requireActivity().startActivity(new Intent(requireActivity(), MainActivity.class));
         requireActivity().finish();
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQueryFailure(Exception e) {
         if (registerBinding == null) return;
-
-        NotifyUtils.showToast(getContext(), e.getMessage());
         ViewUtils.hideProgressBar(registerBinding.overlayLayout);
         ViewUtils.hideProgressBar(bottomSheetBinding.schoolOverlayLayout);
         ViewUtils.enableViews(
@@ -305,9 +312,7 @@ public class RegisterFragment extends Fragment implements QueryCallbacks, School
                 registerBinding.continueButton);
         if (getContext() != null)
             NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
-
     }
-
 
     /**
      * -----------------------------------------------------------------------
@@ -366,4 +371,6 @@ public class RegisterFragment extends Fragment implements QueryCallbacks, School
     public void onNothingSelected(AdapterView<?> parent) {
         gender_position = 1;
     }
+
+
 }

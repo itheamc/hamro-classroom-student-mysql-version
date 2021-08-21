@@ -1,7 +1,6 @@
 package com.itheamc.hamroclassroom_student.ui;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.itheamc.hamroclassroom_student.R;
 import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.FragmentProfileBinding;
 import com.itheamc.hamroclassroom_student.handlers.QueryHandler;
@@ -24,6 +24,7 @@ import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
 import com.itheamc.hamroclassroom_student.utils.LocalStorage;
+import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
 import com.itheamc.hamroclassroom_student.utils.ViewUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 
@@ -91,22 +92,34 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
 
     /**
      * -------------------------------------------------------------------
-     * These are the methods implemented from the FirestoreCallbacks
+     * These are the methods implemented from the QueryCallbacks
      * -------------------------------------------------------------------
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+
+    }
+
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
         if (profileBinding == null) return;
-        Log.d(TAG, "onSuccess: ");
         if (user != null) {
             viewModel.setUser(user);
             passDataToBinding(user);
+            ViewUtils.hideProgressBar(profileBinding.profileOverlayLayLayout);
         }
     }
 
     @Override
-    public void onFailure(Exception e) {
-        Log.d(TAG, "onFailure: ");
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
+        if (profileBinding == null) return;
+        NotifyUtils.logDebug(TAG, "onFailure: " + e.getMessage());
+        if (getContext() == null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
         ViewUtils.hideProgressBar(profileBinding.profileOverlayLayLayout);
     }
 }

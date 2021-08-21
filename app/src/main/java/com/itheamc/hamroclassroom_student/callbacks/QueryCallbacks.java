@@ -11,13 +11,25 @@ import com.itheamc.hamroclassroom_student.models.User;
 import java.util.List;
 
 public interface QueryCallbacks {
-    void onSuccess(
-            User user,
+    void onQuerySuccess(
+            List<User> users,
             List<School> schools,
             List<Teacher> teachers,
             List<Subject> subjects,
             List<Assignment> assignments,
             List<Submission> submissions,
             List<Notice> notices);
-    void onFailure(Exception e);
+
+    void onQuerySuccess(
+            User user,
+            School school,
+            Teacher teacher,
+            Subject subject,
+            Assignment assignment,
+            Submission submission,
+            Notice notice);
+
+    void onQuerySuccess(String message);
+
+    void onQueryFailure(Exception e);
 }

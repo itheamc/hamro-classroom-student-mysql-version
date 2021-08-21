@@ -27,6 +27,7 @@ import com.itheamc.hamroclassroom_student.utils.LocalStorage;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
 import com.itheamc.hamroclassroom_student.utils.OtherUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -96,8 +97,8 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
      * Function to pass data on the views
      */
     private void setUserData(User user) {
-//        Picasso.get().load(user.get_image())
-//                .into(homeBinding.userIcon);
+        Picasso.get().load(user.get_image())
+                .into(homeBinding.userIcon);
         homeBinding.userName.setText(user.get_name().split(" ")[0]);
     }
 
@@ -136,17 +137,15 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
 
     /**
      * -------------------------------------------------------------------------
-     * These are the methods overrided from the FirestoreCallbacks
-     * @param user - an user object got from the database
-     * @param schools - list of schools got from the database
-     * @param teachers - list of teachers got from the database
-     * @param subjects - list of subjects got from the database
-     * @param assignments - list of assignments got from the database
-     * @param submissions - list of submissions got from the database
-     * @param notices - list of notices got from the database
+     * These are the methods overrided from the QueryCallbacks
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+
+    }
+
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
         if (homeBinding == null) return;
         // If User retrieved from the Firestore
         if (user != null) {
@@ -157,7 +156,12 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
         if (homeBinding == null) return;
         if (getContext() != null) NotifyUtils.showToast(getContext(), e.getMessage());
     }

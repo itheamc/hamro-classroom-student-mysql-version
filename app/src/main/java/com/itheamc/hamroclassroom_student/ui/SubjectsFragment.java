@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.itheamc.hamroclassroom_student.R;
 import com.itheamc.hamroclassroom_student.adapters.SubjectAdapter;
 import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
 import com.itheamc.hamroclassroom_student.callbacks.SubjectCallbacks;
@@ -42,8 +43,11 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
     private NavController navController;
     private MainViewModel viewModel;
     private SubjectAdapter subjectAdapter;
+    private UserSubject userSubject;
+    private Subject subject;
 
     private String _message = "";
+    private boolean is_processing = false;
 
 
     public SubjectsFragment() {
@@ -84,11 +88,11 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         // Implementing swipe refresh listener
         subjectsBinding.subjectsSwipeRefreshLayout.setOnRefreshListener(() -> {
             viewModel.setSubjects(null);
-            passDataToRecyclerView();
+            retrieveSubjects();
         });
 
         // Calling function to processed subject lists
-        passDataToRecyclerView();
+        checkSubjects();
 
 
     }
@@ -97,7 +101,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
      * ----------------------------------------------------------------------
      * Function to process the subjects data
      */
-    private void passDataToRecyclerView() {
+    private void checkSubjects() {
         List<Subject> subjects = viewModel.getSubjects();
 
         if (subjects == null) {
@@ -118,7 +122,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
             return;
         }
         QueryHandler.getInstance(this).getSubjects(user.get_school_ref(), user.get_class());
-        ViewUtils.showProgressBar(subjectsBinding.subjectsOverlayLayLayout);
+        showProgress();
     }
 
     /**
@@ -129,8 +133,24 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         if (getActivity() != null) userId = LocalStorage.getInstance(getActivity()).getUserId();
         if (userId != null) {
             QueryHandler.getInstance(this).getUser(userId);
-            ViewUtils.showProgressBar(subjectsBinding.subjectsOverlayLayLayout);
+            showProgress();
         }
+    }
+
+
+    /**
+     * Function to show progressbar
+     */
+    private void showProgress() {
+        ViewUtils.showProgressBar(subjectsBinding.subjectsOverlayLayLayout);
+    }
+
+    /**
+     * Function to hide progressbar
+     */
+    private void hideProgress() {
+        ViewUtils.handleRefreshing(subjectsBinding.subjectsSwipeRefreshLayout);
+        ViewUtils.hideProgressBar(subjectsBinding.subjectsOverlayLayLayout);
     }
 
 
@@ -169,102 +189,111 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
      * Function to handle onAddClick() event
      */
     private void handleAddRemove(int _position) {
+        if (is_processing) return;
         List<Subject> subjects = viewModel.getSubjects();
         if (subjects == null) return;
 
-        Subject subject = subjects.get(_position);
-        User user = viewModel.getUser();
-//        List<UserSubject> userSubjects = user.su();
-
+        subject = subjects.get(_position);
+        is_processing = true;
         if (subject.is_added()) {
             subject.set_added(false);
-//            subjectIds.remove(subject.get_id());
+            removeSubject(subject.get_id());
         } else {
             subject.set_added(true);
-//            subjectIds.add(subject.get_id());
-
+            addSubject(subject.get_id());
         }
 
-        // Updating to the view model
-//        user.set_subjects_ref(subjectIds);
-        viewModel.setUser(user);
-        viewModel.replaceSubject(subject);
+    }
 
-        if (subject.is_added()) {
-            QueryHandler.getInstance(this).addSubjectToUser(new UserSubject(IdGenerator.generateRandomId(), user.get_id(), subject.get_id()));
-            _message = "Added";
-            return;
+    // Function to remove subjects from UserSubjects
+    private void removeSubject(String _id) {
+        _message = "Removed";
+        User user = viewModel.getUser();
+        List<UserSubject> userSubjects = user.get_subjects();
+        for (UserSubject sub: userSubjects) {
+            if (sub.get_subject().equals(_id)) userSubject = sub;
         }
         QueryHandler.getInstance(this).removeSubjectToUser("id");
-        _message = "Removed";
+    }
+
+    // Function to remove subjects from UserSubjects
+    private void addSubject(String _id) {
+        _message = "Added";
+        User user = viewModel.getUser();
+        userSubject = new UserSubject(
+                IdGenerator.generateRandomId(),
+                user.get_id(),
+                _id
+        );
+        QueryHandler.getInstance(this).addSubjectToUser(userSubject);
     }
 
 
     /**
      * -------------------------------------------------------------------------
-     * These are the methods overrided from the FirestoreCallbacks
-     * @param user - an user object got from the database
-     * @param schools - list of schools got from the database
-     * @param teachers - list of teachers got from the database
-     * @param subjects - list of subjects got from the database
-     * @param assignments - list of assignments got from the database
-     * @param submissions - list of submissions got from the database
-     * @param notices - list of notices got from the database
+     * These are the methods overrided from the QueryCallbacks
      */
 
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (subjectsBinding == null) return;
+        // If Subjects retrieve from the firestore
+        if (subjects != null) {
+            handleSubjects(subjects);
+        }
+        hideProgress();
+    }
 
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+        if (subjectsBinding == null) return;
         // If User retrieved from the Firestore
         if (user != null) {
             viewModel.setUser(user);
             retrieveSubjects();
-            return;
         }
-
-        // If Subjects retrieve from the firestore
-        if (subjects != null) {
-            ViewUtils.hideProgressBar(subjectsBinding.subjectsOverlayLayLayout);
-            ViewUtils.handleRefreshing(subjectsBinding.subjectsSwipeRefreshLayout);
-            if (!subjects.isEmpty()) {
-                processedSubjects(subjects);
-            }
-            return;
-        }
-
-        ViewUtils.hideProgressBar(subjectsBinding.subjectsOverlayLayLayout);
-        ViewUtils.handleRefreshing(subjectsBinding.subjectsSwipeRefreshLayout);
-        if (getContext() != null) NotifyUtils.showToast(getContext(), _message);
-        passDataToRecyclerView();
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(String message) {
         if (subjectsBinding == null) return;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), e.getMessage());
-        ViewUtils.hideProgressBar(subjectsBinding.subjectsOverlayLayLayout);
+        User user = viewModel.getUser();
+        List<UserSubject> userSubjects = user.get_subjects();
+        if (_message.equals("Added")) {
+            userSubjects.add(userSubject);
+        } else {
+            userSubjects.remove(userSubject);
+        }
+        user.set_subjects(userSubjects);
+        viewModel.replaceSubject(subject);
+        viewModel.setUser(user);
+        is_processing = false;
+        if (getContext() != null) NotifyUtils.showToast(getContext(), _message);
+        checkSubjects();
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
+        if (subjectsBinding == null) return;
+        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
+        hideProgress();
     }
 
     /**
      * ----------------------------------------------------------------------
      * Function to process the subjects data
      */
-    private void processedSubjects(List<Subject> subjects) {
-        User user = viewModel.getUser();
-        List<String> subject_ids = null;
-        List<Subject> processedSubjects = new ArrayList<>();
-
-        if (user != null) {
-//            subject_ids = user.get_subjects_ref();
+    private void handleSubjects(List<Subject> subjects) {
+        if (subjects == null) {
+            hideProgress();
+            return;
         }
 
-        for (Subject subject: subjects) {
-            subject.set_added(Subject.isAlreadyAdded(subject_ids, subject.get_id()));
-            processedSubjects.add(subject);
-        }
-
+        User u = viewModel.getUser();
+        List<Subject> processedSubjects = Subject.processedSubjects(subjects, u);
         viewModel.setSubjects(processedSubjects);
-        passDataToRecyclerView();
+        subjectAdapter.submitList(processedSubjects);
+        hideProgress();
     }
+
 }

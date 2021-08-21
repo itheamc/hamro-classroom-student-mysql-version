@@ -104,7 +104,7 @@ public class LoginFragment extends Fragment implements LoginCallbacks, QueryCall
                             Intent data = result.getData();
                             handleIntentResult(data);   // Calling function to handle google signin result
                         } else {
-                            ViewUtils.showProgressBar(loginBinding.overlayLayout);
+                            ViewUtils.hideProgressBar(loginBinding.overlayLayout);
                             ViewUtils.enableViews(loginBinding.facebookLoginButton, loginBinding.googleLoginButton);
                             NotifyUtils.showToast(getContext(), getString(R.string.unable_to_login_message));
                         }
@@ -186,11 +186,16 @@ public class LoginFragment extends Fragment implements LoginCallbacks, QueryCall
 
     /**
      * -------------------------------------------------------------------
-     * These are the methods implemented from the FirestoreCallbacks
+     * These are the methods implemented from the QueryCallbacks
      * -------------------------------------------------------------------
      */
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+
+    }
+
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
         if (loginBinding == null) return;
         if (user != null) {
             NotifyUtils.logDebug(TAG, user.toString());
@@ -203,13 +208,19 @@ public class LoginFragment extends Fragment implements LoginCallbacks, QueryCall
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
         if (loginBinding == null) return;
         ViewUtils.hideProgressBar(loginBinding.overlayLayout);
         ViewUtils.enableViews(loginBinding.facebookLoginButton, loginBinding.googleLoginButton);
         NotifyUtils.showToast(getContext(), e.getMessage());
         NotifyUtils.logDebug(TAG, "onUserInfoRetrievedError: - " + e.getMessage());
     }
+
 
     /**
      * ---------------------------------------------------------------------------

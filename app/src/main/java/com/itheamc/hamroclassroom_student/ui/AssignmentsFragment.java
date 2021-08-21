@@ -25,6 +25,7 @@ import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.User;
+import com.itheamc.hamroclassroom_student.models.UserSubject;
 import com.itheamc.hamroclassroom_student.utils.LocalStorage;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
 import com.itheamc.hamroclassroom_student.utils.ViewUtils;
@@ -41,12 +42,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
     private NavController navController;
     private AssignmentAdapter assignmentAdapter;
 
-    /*
-    Lists
-     */
-    private List<Subject> filteredSubjects;
     private List<Assignment> listOfAssignments;
-    private int position = 0;
 
     public AssignmentsFragment() {
         // Required empty public constructor
@@ -78,17 +74,14 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
         assignmentAdapter = new AssignmentAdapter(this);
         assignmentsBinding.assignmentsRecyclerView.setAdapter(assignmentAdapter);
 
-        // Initializing filteredSubjects
-        filteredSubjects = new ArrayList<>();
+        // Initializing list
         listOfAssignments = new ArrayList<>();
 
 
         // Setting swipe and refresh layout
         assignmentsBinding.assignmentsSwipeRefreshLayout.setOnRefreshListener(() -> {
-            filteredSubjects = new ArrayList<>();
             listOfAssignments = new ArrayList<>();
             viewModel.setAllAssignments(null);
-            position = 0;
             ViewUtils.hideViews(assignmentsBinding.noAssignmentsLayout);
             checksUser();
         });
@@ -118,38 +111,61 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
             return;
         }
 
-        retrieveSubjects();
+        retrieveAssignments();
+        ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
     }
 
     /**
-     * Function to get the subjects list according to the student's class and school
+     * Function to retrieve assignments
      */
-    private void retrieveSubjects() {
+    private void retrieveAssignments() {
         User user = viewModel.getUser();
-        List<Subject> subjects = viewModel.getSubjects();
-        if (subjects != null && !subjects.isEmpty()) {
-            // Getting filtered subjects list from the available subjects
-            filteredSubjects = Subject.filterSubjects(subjects);
-            if (!filteredSubjects.isEmpty()) {
-                retrieveAssignments();
-                ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
-                return;
-            }
+        if (user != null) QueryHandler.getInstance(this).getAssignments(user.get_school_ref(), user.get_class());
+    }
 
-           viewsOnCompletedOrFailure();     // ProgressBar, NoItemView and Stop Refreshing
+    /**
+     * ----------------------------------------------------------------------
+     * Function to handle subjects data
+     */
+    private void handleAssignments(List<Assignment> assignments) {
+        if (assignments == null || assignments.isEmpty()) {
+            ViewUtils.visibleViews(assignmentsBinding.noAssignmentsLayout);
+            hideProgress();
             return;
         }
 
-        QueryHandler.getInstance(this).getSubjects(user.get_school_ref(), user.get_class());
-        ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
+        User user = viewModel.getUser();
+        List<UserSubject> userSubjects = user.get_subjects();
+
+        for (Assignment assignment: assignments) {
+            if (!isAddable(userSubjects, assignment.get_subject_ref())) continue;
+            listOfAssignments.add(assignment);
+        }
+
+        viewModel.setAllAssignments(listOfAssignments);
+        assignmentAdapter.submitList(listOfAssignments);
+        hideProgress();
+
+    }
+
+    /**
+    Function to check if assignment is from the user subject or not
+     */
+    private boolean isAddable(List<UserSubject> userSubjects, String _subject_ref) {
+        boolean isAddable = false;
+        for (UserSubject userSubject: userSubjects) {
+            if (!userSubject.get_subject().equals(_subject_ref)) continue;
+            isAddable = true;
+        }
+
+        return isAddable;
     }
 
 
     /*
     Handle views
      */
-    private void viewsOnCompletedOrFailure() {
-        ViewUtils.visibleViews(assignmentsBinding.noAssignmentsLayout);
+    private void hideProgress() {
         ViewUtils.hideProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
         ViewUtils.handleRefreshing(assignmentsBinding.assignmentsSwipeRefreshLayout);
     }
@@ -192,108 +208,43 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
 
     /**
      * -----------------------------------------------------------------------------
-     * These are the methods implemented from the FirestoreCallbacks
-     * @param user        - It is the user object
-     * @param schools     - It is the  list of schools
-     * @param subjects    - It is the  list of subjects
-     * @param assignments - It is the  list of assignments
-     * @param submissions - It is the  list of submissions
-     * @param notices     - It is the  list of notices
+     * These are the methods implemented from the QueryCallbacks
      */
+
     @Override
-    public void onSuccess(User user, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+        if (assignmentsBinding == null) return;
+
+        // If Assignment is retrieved
+        if (assignments != null) {
+            handleAssignments(assignments);
+        }
+    }
+
+    @Override
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
         if (assignmentsBinding == null) return;
 
         // If User retrieved from the Firestore
         if (user != null) {
             viewModel.setUser(user);
-            retrieveSubjects();
-            return;
-        }
-
-        // If Subjects retrieve from the firestore
-        if (subjects != null) {
-            if (!subjects.isEmpty()) {
-                handleSubjects(subjects);
-                return;
-            }
-            viewsOnCompletedOrFailure();     // ProgressBar, NoItemView and Stop Refreshing
-            return;
-        }
-
-        // If Assignment is retrieved
-        if (assignments != null) {
-            if (!assignments.isEmpty()) {
-                for (Assignment a: assignments) {
-                    a.set_subject(filteredSubjects.get(position));
-                    listOfAssignments.add(a);
-                }
-            }
-
-            position += 1;
             retrieveAssignments();
-            return;
         }
-
-        ViewUtils.hideProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
-        ViewUtils.handleRefreshing(assignmentsBinding.assignmentsSwipeRefreshLayout);
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onQuerySuccess(String message) {
+
+    }
+
+    @Override
+    public void onQueryFailure(Exception e) {
         if (assignmentsBinding == null) return;
-        viewsOnCompletedOrFailure();     // ProgressBar, NoItemView and Stop Refreshing
+        hideProgress();
         if (e.getMessage() == null) return;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), e.getMessage());
+        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
     }
 
-
-    /**
-     * ----------------------------------------------------------------------
-     * Function to handle subjects data
-     */
-    private void handleSubjects(List<Subject> subjects) {
-        User u = viewModel.getUser();
-        List<Subject> processedSubjects = Subject.processedSubjects(subjects, u);
-
-        if (!processedSubjects.isEmpty()) {
-            viewModel.setSubjects(processedSubjects);
-            // Getting filtered subjects list from the available subjects
-            filteredSubjects = Subject.filterSubjects(processedSubjects);
-
-            if (!filteredSubjects.isEmpty()) {
-                retrieveAssignments();
-            } else {
-                viewsOnCompletedOrFailure();     // ProgressBar, NoItemView and Stop Refreshing
-            }
-            return;
-        }
-
-        viewsOnCompletedOrFailure();     // ProgressBar, NoItemView and Stop Refreshing
-    }
-
-    /**
-     * Function to retrieve assignments
-     */
-    private void retrieveAssignments() {
-        if (position < filteredSubjects.size()) {
-            String id = filteredSubjects.get(position).get_id();
-            QueryHandler.getInstance(this).getAssignments("", "");
-            return;
-        }
-
-        position = 0;
-        ViewUtils.hideProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
-        ViewUtils.handleRefreshing(assignmentsBinding.assignmentsSwipeRefreshLayout);
-
-        if (listOfAssignments == null || listOfAssignments.isEmpty()) {
-            ViewUtils.visibleViews(assignmentsBinding.noAssignmentsLayout);
-            return;
-        }
-
-        assignmentAdapter.submitList(listOfAssignments);
-        viewModel.setAllAssignments(listOfAssignments);
-    }
 
 
     // Overriding function to handle the destroy of view
@@ -303,4 +254,6 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
         super.onDestroyView();
         assignmentsBinding = null;
     }
+
+
 }
