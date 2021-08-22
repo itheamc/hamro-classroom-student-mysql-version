@@ -107,7 +107,7 @@
                     android:layout_marginBottom="8dp"
                     android:fontFamily="sans-serif-condensed"
                     android:enabled="@{assignment._is_submitted ? false : true}"
-                    android:text="@{assignment._is_submitted ? @string/submit : @string/submitted}"
+                    android:text="@{assignment._is_submitted ? @string/submitted : @string/submit}"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="12sp"
                     android:textStyle="bold"
