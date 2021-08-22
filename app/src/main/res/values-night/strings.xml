@@ -49,4 +49,10 @@
     <string name="submission_title">Submission Title</string>
     <string name="copy_link">Copy Link</string>
     <string name="submitted">Submitted</string>
+    <string name="no_classes_added">No Classes Added!!</string>
+    <string name="no_subjects">No Subjects!!</string>
+    <string name="image_credit_rachel">Credit goes to Rachel Moenning</string>
+    <string name="photo_by_javier_trueba_on_unsplash">Photo by javier trueba on Unsplash</string>
+    <string name="credit_goes_to_sigmund">Credit goes to sigmund</string>
+    <string name="credit_goes_to_arisa_chattasa">Credit goes to arisa-chattasa</string>
 </resources>
