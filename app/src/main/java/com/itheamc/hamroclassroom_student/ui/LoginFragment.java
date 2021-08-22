@@ -209,7 +209,11 @@ public class LoginFragment extends Fragment implements LoginCallbacks, QueryCall
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (loginBinding == null) return;
+        ViewUtils.hideProgressBar(loginBinding.overlayLayout);
+        ViewUtils.enableViews(loginBinding.facebookLoginButton, loginBinding.googleLoginButton);
+        viewModel.setFirebaseUser(mAuth.getCurrentUser());
+        navController.navigate(R.id.action_loginFragment_to_registerFragment);
     }
 
     @Override

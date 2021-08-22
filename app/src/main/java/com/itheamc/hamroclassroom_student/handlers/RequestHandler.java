@@ -126,7 +126,7 @@ public class RequestHandler {
                 .add("_subject", userSubject.get_subject())
                 .build();
 
-        return new Request.Builder().url(PathHandler.STUDENTS_PATH).post(requestBody).build();
+        return new Request.Builder().url(PathHandler.STUDENTS_SUBJECT_PATH).post(requestBody).build();
     }
 
 

@@ -191,7 +191,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
     private void handleAddRemove(int _position) {
         if (is_processing) return;
         List<Subject> subjects = viewModel.getSubjects();
-        if (subjects == null) return;
+        if (subjects == null || subjects.isEmpty()) return;
 
         subject = subjects.get(_position);
         is_processing = true;
@@ -210,6 +210,10 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         _message = "Removed";
         User user = viewModel.getUser();
         List<UserSubject> userSubjects = user.get_subjects();
+        if (userSubjects == null || userSubjects.isEmpty()) {
+            is_processing = false;
+            return;
+        }
         for (UserSubject sub: userSubjects) {
             if (sub.get_subject().equals(_id)) userSubject = sub;
         }
@@ -268,8 +272,8 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         viewModel.replaceSubject(subject);
         viewModel.setUser(user);
         is_processing = false;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), _message);
         checkSubjects();
+        if (getContext() != null) NotifyUtils.showToast(getContext(), _message);
     }
 
     @Override

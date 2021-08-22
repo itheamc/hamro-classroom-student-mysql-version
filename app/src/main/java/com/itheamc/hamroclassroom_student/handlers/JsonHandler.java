@@ -308,6 +308,8 @@ public class JsonHandler {
 
     // Subjects Response Handler
     public static List<UserSubject> getUserSubjects(@NonNull JSONObject jsonObject) throws JSONException {
+        if (!jsonObject.has("_subjects")) return new ArrayList<>();
+
         List<UserSubject> userSubjects = new ArrayList<>();
         JSONArray jsonArray = jsonObject.getJSONArray("_subjects");
 
