@@ -294,9 +294,9 @@ public class QueryHandler {
      * Function to get assignments list from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getAssignments(String schoolId, String _class) {
+    public void getAssignments(String _userId, String schoolId, String _class) {
         executorService.execute(() -> {
-            client.newCall(RequestHandler.assignmentGetRequestBySchoolIdAndClass(schoolId, _class)).enqueue(new Callback() {
+            client.newCall(RequestHandler.assignmentGetRequestBySchoolIdAndClass(_userId, schoolId, _class)).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     notifyFailure(e);

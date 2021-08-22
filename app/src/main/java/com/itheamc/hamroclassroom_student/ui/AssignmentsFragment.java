@@ -120,7 +120,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
      */
     private void retrieveAssignments() {
         User user = viewModel.getUser();
-        if (user != null) QueryHandler.getInstance(this).getAssignments(user.get_school_ref(), user.get_class());
+        if (user != null) QueryHandler.getInstance(this).getAssignments(user.get_id(), user.get_school_ref(), user.get_class());
     }
 
     /**

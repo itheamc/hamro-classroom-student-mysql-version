@@ -21,13 +21,14 @@ public class Assignment {
     private School _school;
     private String _assigned_date;
     private String _due_date;
+    private boolean _is_submitted;
 
     // Constructor
     public Assignment() {
     }
 
     // Constructor with parameters
-    public Assignment(String _id, String _title, String _desc, String[] _images, String[] _docs, String _class, String _teacher_ref, Teacher _teacher, String _subject_ref, Subject _subject, String _school_ref, School _school, String _assigned_date, String _due_date) {
+    public Assignment(String _id, String _title, String _desc, String[] _images, String[] _docs, String _class, String _teacher_ref, Teacher _teacher, String _subject_ref, Subject _subject, String _school_ref, School _school, String _assigned_date, String _due_date, boolean _is_submitted) {
         this._id = _id;
         this._title = _title;
         this._desc = _desc;
@@ -42,6 +43,7 @@ public class Assignment {
         this._school = _school;
         this._assigned_date = _assigned_date;
         this._due_date = _due_date;
+        this._is_submitted = _is_submitted;
     }
 
     public Assignment(String school_ref, String[] docs, String[] docs1, String[] images, Teacher teacher, Subject subject, String assigned_date, String id, School school, String due_date, String[] docs2, String[] docs3, String teacher_ref, String title) {
@@ -160,6 +162,14 @@ public class Assignment {
         this._due_date = _due_date;
     }
 
+    public boolean is_is_submitted() {
+        return _is_submitted;
+    }
+
+    public void set_is_submitted(boolean _is_submitted) {
+        this._is_submitted = _is_submitted;
+    }
+
     // Overriding toString() method
     @Override
     public String toString() {
@@ -178,6 +188,7 @@ public class Assignment {
                 ", _school=" + _school +
                 ", _assigned_date='" + _assigned_date + '\'' +
                 ", _due_date='" + _due_date + '\'' +
+                ", _is_submitted=" + _is_submitted +
                 '}';
     }
 
@@ -187,7 +198,8 @@ public class Assignment {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Assignment that = (Assignment) o;
-        return Objects.equals(_id, that._id) &&
+        return _is_submitted == that._is_submitted &&
+                Objects.equals(_id, that._id) &&
                 Objects.equals(_title, that._title) &&
                 Objects.equals(_desc, that._desc) &&
                 Arrays.equals(_images, that._images) &&

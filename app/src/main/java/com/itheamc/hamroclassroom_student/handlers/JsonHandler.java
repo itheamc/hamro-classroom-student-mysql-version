@@ -190,7 +190,8 @@ public class JsonHandler {
                 subject.get_school_ref(),
                 subject.get_school(),
                 assignmentObj.getString("_assigned_date"),
-                assignmentObj.getString("_due_date")
+                assignmentObj.getString("_due_date"),
+                assignmentObj.getBoolean("_is_submitted")
         );
 
     }

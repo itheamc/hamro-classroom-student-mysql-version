@@ -220,8 +220,8 @@ public class RequestHandler {
     }
 
     // GET REQUEST
-    public static Request assignmentGetRequestBySchoolIdAndClass(@NonNull String _schoolId, String _class) {
-        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _schoolId + "___" + _class).addHeader("by", "school").get().build();
+    public static Request assignmentGetRequestBySchoolIdAndClass(@NonNull String _userId, @NonNull String _schoolId, @NonNull String _class) {
+        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _schoolId + "___" + _class).addHeader("user", _userId).get().build();
     }
 
     // POST REQUEST
