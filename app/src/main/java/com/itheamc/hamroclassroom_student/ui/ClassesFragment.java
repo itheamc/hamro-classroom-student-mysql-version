@@ -101,6 +101,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         classesBinding.classesSwipeRefreshLayout.setOnRefreshListener(() -> {
             if (isFetching) return;
             viewModel.setSubjects(null);
+            viewModel.setUser(null);
             checksUser();
 
         });
@@ -128,9 +129,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         User user = viewModel.getUser();
         List<Subject> subjects = viewModel.getSubjects();
         if (subjects != null && !subjects.isEmpty()) {
-            hideProgress();
-            classesAdapter.submitList(Subject.filterSubjects(subjects));
-            isFetching = false;
+            handleSubjects(subjects);
             return;
         }
 
@@ -253,13 +252,16 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (classesBinding == null) return;
+        if (message.equals("Not found")) ViewUtils.visibleViews(classesBinding.noClassesLayout);
+        hideProgress();
     }
 
     @Override
     public void onQueryFailure(Exception e) {
         if (classesBinding == null) return;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
+        if (getContext() != null)
+            NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
         hideProgress();
     }
 
@@ -269,7 +271,10 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
      * Function to handle subjects data
      */
     private void handleSubjects(List<Subject> subjects) {
-        if (subjects == null) {
+        isFetching = false;
+
+        if (subjects == null || subjects.isEmpty()) {
+            ViewUtils.visibleViews(classesBinding.noClassesLayout);
             hideProgress();
             return;
         }
@@ -277,8 +282,15 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
         User u = viewModel.getUser();
         List<Subject> processedSubjects = Subject.processedSubjects(subjects, u);
         viewModel.setSubjects(processedSubjects);
-        classesAdapter.submitList(Subject.filterSubjects(processedSubjects));
-        isFetching = false;
+
+        // Handling filtered subjects
+        List<Subject> filteredSubjects = Subject.filterSubjects(processedSubjects);
+        if (filteredSubjects.isEmpty()) {
+            ViewUtils.visibleViews(classesBinding.noClassesLayout);
+            hideProgress();
+            return;
+        }
+        classesAdapter.submitList(filteredSubjects);
         hideProgress();
     }
 

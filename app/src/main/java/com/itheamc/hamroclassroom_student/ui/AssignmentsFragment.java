@@ -142,8 +142,12 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
             listOfAssignments.add(assignment);
         }
 
-        viewModel.setAllAssignments(listOfAssignments);
-        assignmentAdapter.submitList(listOfAssignments);
+        if (listOfAssignments.isEmpty()) {
+            ViewUtils.visibleViews(assignmentsBinding.noAssignmentsLayout);
+        } else {
+            viewModel.setAllAssignments(listOfAssignments);
+            assignmentAdapter.submitList(listOfAssignments);
+        }
         hideProgress();
 
     }
@@ -234,7 +238,9 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (assignmentsBinding == null) return;
+        if (message.equals("Not found")) ViewUtils.visibleViews(assignmentsBinding.noAssignmentsLayout);
+        hideProgress();
     }
 
     @Override

@@ -148,7 +148,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
     @Override
     public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (submissionsBinding == null) return;
-
+        hideProgressBar();
         // If submissions is retrieved
         if (submissions != null) {
             if (!submissions.isEmpty()) {
@@ -158,7 +158,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
             }
             ViewUtils.visibleViews(submissionsBinding.noSubmissionLayout);
         }
-        hideProgressBar();
+
     }
 
     @Override
@@ -173,7 +173,9 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (submissionsBinding == null) return;
+        if (message.equals("Not found")) ViewUtils.visibleViews(submissionsBinding.noSubmissionLayout);
+        hideProgressBar();
     }
 
     @Override
@@ -181,10 +183,6 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
         if (submissionsBinding == null) return;
         hideProgressBar();
         if (e.getMessage() == null) return;
-        if (e.getMessage().toLowerCase(Locale.ROOT).contains("submission")) {
-            ViewUtils.visibleViews(submissionsBinding.noSubmissionLayout);
-            return;
-        }
         if (getContext() != null) NotifyUtils.showToast(getContext(),getString(R.string.went_wrong_message));
     }
 

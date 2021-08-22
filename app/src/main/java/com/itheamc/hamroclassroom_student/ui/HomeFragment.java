@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.itheamc.hamroclassroom_student.R;
 import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
@@ -26,6 +27,7 @@ import com.itheamc.hamroclassroom_student.models.User;
 import com.itheamc.hamroclassroom_student.utils.LocalStorage;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
 import com.itheamc.hamroclassroom_student.utils.OtherUtils;
+import com.itheamc.hamroclassroom_student.utils.ViewUtils;
 import com.itheamc.hamroclassroom_student.viewmodel.MainViewModel;
 import com.squareup.picasso.Picasso;
 
@@ -75,6 +77,9 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
         homeBinding.assignmentCardView.setOnClickListener(this);
         homeBinding.submissionsCardView.setOnClickListener(this);
         homeBinding.noticesCardView.setOnClickListener(this);
+
+        // OnRefresh Listener on Swipe Refresh Layout
+        homeBinding.homeSwipeRefreshLayout.setOnRefreshListener(this::retrieveUser);
 
         // Retrieving user
         if (viewModel.getUser() != null) {
@@ -153,16 +158,20 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
             viewModel.setSchool(user.get_school());
             setUserData(user);
         }
+        ViewUtils.handleRefreshing(homeBinding.homeSwipeRefreshLayout);
     }
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (homeBinding == null) return;
+        ViewUtils.handleRefreshing(homeBinding.homeSwipeRefreshLayout);
     }
 
     @Override
     public void onQueryFailure(Exception e) {
         if (homeBinding == null) return;
         if (getContext() != null) NotifyUtils.showToast(getContext(), e.getMessage());
+        ViewUtils.handleRefreshing(homeBinding.homeSwipeRefreshLayout);
+
     }
 }

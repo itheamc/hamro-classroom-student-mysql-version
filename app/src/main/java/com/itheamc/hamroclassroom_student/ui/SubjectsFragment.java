@@ -88,6 +88,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         // Implementing swipe refresh listener
         subjectsBinding.subjectsSwipeRefreshLayout.setOnRefreshListener(() -> {
             viewModel.setSubjects(null);
+            viewModel.setUser(null);
             retrieveSubjects();
         });
 
@@ -217,7 +218,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         for (UserSubject sub: userSubjects) {
             if (sub.get_subject().equals(_id)) userSubject = sub;
         }
-        QueryHandler.getInstance(this).removeSubjectToUser("id");
+        if (userSubject != null) QueryHandler.getInstance(this).removeSubjectToUser(userSubject.get_id());
     }
 
     // Function to remove subjects from UserSubjects
@@ -261,19 +262,28 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
     @Override
     public void onQuerySuccess(String message) {
         if (subjectsBinding == null) return;
-        User user = viewModel.getUser();
-        List<UserSubject> userSubjects = user.get_subjects();
-        if (_message.equals("Added")) {
-            userSubjects.add(userSubject);
+        if (message.equals("Not found")) {
+            ViewUtils.visibleViews(subjectsBinding.noSubjectsLayout);
+            hideProgress();
+        } else if (message.equals("success")){
+            User user = viewModel.getUser();
+            List<UserSubject> userSubjects = user.get_subjects();
+            if (_message.equals("Added")) {
+                userSubjects.add(userSubject);
+            } else {
+                userSubjects.remove(userSubject);
+            }
+            user.set_subjects(userSubjects);
+            viewModel.replaceSubject(subject);
+            viewModel.setUser(user);
+            is_processing = false;
+            userSubject = null;
+            checkSubjects();
+            if (getContext() != null) NotifyUtils.showToast(getContext(), _message);
         } else {
-            userSubjects.remove(userSubject);
+            hideProgress();
         }
-        user.set_subjects(userSubjects);
-        viewModel.replaceSubject(subject);
-        viewModel.setUser(user);
-        is_processing = false;
-        checkSubjects();
-        if (getContext() != null) NotifyUtils.showToast(getContext(), _message);
+
     }
 
     @Override
@@ -288,7 +298,8 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
      * Function to process the subjects data
      */
     private void handleSubjects(List<Subject> subjects) {
-        if (subjects == null) {
+        if (subjects == null || subjects.isEmpty()) {
+            ViewUtils.visibleViews(subjectsBinding.noSubjectsLayout);
             hideProgress();
             return;
         }
