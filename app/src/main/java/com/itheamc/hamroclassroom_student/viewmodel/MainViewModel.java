@@ -38,11 +38,6 @@ public class MainViewModel extends ViewModel {
     private List<Submission> submissions;
     private List<Notice> notices;
 
-    /*
-    Past Date
-     */
-    private long past_date;
-
 
     /*
     Getters and Setters
@@ -167,14 +162,6 @@ public class MainViewModel extends ViewModel {
         this.notices = notices;
     }
 
-    public long get_past_date() {
-        return past_date;
-    }
-
-    public void set_past_date(long past_date) {
-        this.past_date = past_date;
-    }
-
     /*
          Function to replace item in List<Subject> subjects
           */
@@ -192,24 +179,4 @@ public class MainViewModel extends ViewModel {
         this.subjects = subjectList;
     }
 
-    /*
-    Function to update subject Item in the subjects
-     */
-    public List<Subject> addTeacherToSubject(List<Teacher> __teachers) {
-        List<Subject> updatedSubjects = new ArrayList<>();
-        this.teachers = __teachers;
-        for (Subject sub: subjects) {
-            for (Teacher teach: __teachers) {
-                if (!sub.get_teacher_ref().equals(teach.get_id())) continue;
-                sub.set_teacher(teach);
-                break;
-            }
-
-            updatedSubjects.add(sub);
-        }
-
-        this.subjects = new ArrayList<>();
-        this.subjects = updatedSubjects;
-        return updatedSubjects;
-    }
 }
