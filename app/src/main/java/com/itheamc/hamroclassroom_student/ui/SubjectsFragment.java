@@ -48,6 +48,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
 
     private String _message = "";
     private boolean is_processing = false;
+    private boolean isRefreshing = false;
 
 
     public SubjectsFragment() {
@@ -89,6 +90,8 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         subjectsBinding.subjectsSwipeRefreshLayout.setOnRefreshListener(() -> {
             viewModel.setSubjects(null);
             viewModel.setUser(null);
+            ViewUtils.hideViews(subjectsBinding.noSubjectsLayout);
+            isRefreshing = true;
             retrieveSubjects();
         });
 
@@ -123,7 +126,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
             return;
         }
         QueryHandler.getInstance(this).getSubjects(user.get_school_ref(), user.get_class());
-        showProgress();
+        if (!isRefreshing) showProgress();
     }
 
     /**
@@ -134,7 +137,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
         if (getActivity() != null) userId = LocalStorage.getInstance(getActivity()).getUserId();
         if (userId != null) {
             QueryHandler.getInstance(this).getUser(userId);
-            showProgress();
+            if (!isRefreshing) showProgress();
         }
     }
 
@@ -152,6 +155,7 @@ public class SubjectsFragment extends Fragment implements SubjectCallbacks, Quer
     private void hideProgress() {
         ViewUtils.handleRefreshing(subjectsBinding.subjectsSwipeRefreshLayout);
         ViewUtils.hideProgressBar(subjectsBinding.subjectsOverlayLayLayout);
+        isRefreshing = false;
     }
 
 

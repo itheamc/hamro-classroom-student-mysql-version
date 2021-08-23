@@ -43,6 +43,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
     private AssignmentAdapter assignmentAdapter;
 
     private List<Assignment> listOfAssignments;
+    private boolean isRefreshing = false;
 
     public AssignmentsFragment() {
         // Required empty public constructor
@@ -83,6 +84,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
             listOfAssignments = new ArrayList<>();
             viewModel.setAllAssignments(null);
             ViewUtils.hideViews(assignmentsBinding.noAssignmentsLayout);
+            isRefreshing = true;
             checksUser();
         });
 
@@ -106,13 +108,12 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
         if (user == null) {
             if (getActivity() != null) {
                 QueryHandler.getInstance(this).getUser(LocalStorage.getInstance(getActivity()).getUserId());
-                ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
+                if (!isRefreshing) ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
             }
             return;
         }
 
         retrieveAssignments();
-        ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
     }
 
     /**
@@ -120,7 +121,8 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
      */
     private void retrieveAssignments() {
         User user = viewModel.getUser();
-        if (user != null) QueryHandler.getInstance(this).getAssignments(user.get_id(), user.get_school_ref(), user.get_class());
+        QueryHandler.getInstance(this).getAssignments(user.get_id(), user.get_school_ref(), user.get_class());
+        if (!isRefreshing) ViewUtils.showProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
     }
 
     /**
@@ -172,6 +174,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
     private void hideProgress() {
         ViewUtils.hideProgressBar(assignmentsBinding.assignmentsOverlayLayLayout);
         ViewUtils.handleRefreshing(assignmentsBinding.assignmentsSwipeRefreshLayout);
+        isRefreshing = false;
     }
 
 

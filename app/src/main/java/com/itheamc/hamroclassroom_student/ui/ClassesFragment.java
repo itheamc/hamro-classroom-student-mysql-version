@@ -49,6 +49,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
     Boolean Variable
      */
     private boolean isFetching = false;
+    private boolean isRefreshing = false;
 
 
     public ClassesFragment() {
@@ -100,6 +101,8 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
          */
         classesBinding.classesSwipeRefreshLayout.setOnRefreshListener(() -> {
             if (isFetching) return;
+            ViewUtils.hideViews(classesBinding.noClassesLayout);
+            isRefreshing = true;
             viewModel.setSubjects(null);
             viewModel.setUser(null);
             checksUser();
@@ -116,7 +119,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
             if (getActivity() == null) return;
             isFetching = true;
             QueryHandler.getInstance(this).getUser(LocalStorage.getInstance(getActivity()).getUserId());
-            showProgress();
+            if (!isRefreshing) showProgress();
             return;
         }
         retrieveSubjects();
@@ -135,7 +138,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
 
         isFetching = true;
         QueryHandler.getInstance(this).getSubjects(user.get_school_ref(), user.get_class());
-        showProgress();
+        if (!isRefreshing) showProgress();
     }
 
 
@@ -152,6 +155,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
     private void hideProgress() {
         ViewUtils.handleRefreshing(classesBinding.classesSwipeRefreshLayout);
         ViewUtils.hideProgressBar(classesBinding.classesOverlayLayLayout);
+        isRefreshing = false;
     }
 
 

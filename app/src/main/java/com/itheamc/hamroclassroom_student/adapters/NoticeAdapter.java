@@ -15,6 +15,7 @@ import com.itheamc.hamroclassroom_student.callbacks.NoticeCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.NoticeViewBinding;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
+import com.itheamc.hamroclassroom_student.utils.TimeUtils;
 
 import java.text.DateFormat;
 
@@ -38,7 +39,7 @@ public class NoticeAdapter extends ListAdapter<Notice, NoticeAdapter.NoticeViewH
     @Override
     public void onBindViewHolder(@NonNull NoticeViewHolder holder, int position) {
         Notice notice = getItem(position);
-        String formattedDate = DateFormat.getDateInstance().format(notice.get_notified_on());
+        String formattedDate = DateFormat.getDateInstance().format(TimeUtils.toDate(notice.get_notified_on()));
         holder.viewBinding.setDate(formattedDate);
 
         // Submitting to the data binding

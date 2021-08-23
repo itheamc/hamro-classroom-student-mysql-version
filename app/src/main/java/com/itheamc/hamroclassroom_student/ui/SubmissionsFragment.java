@@ -41,6 +41,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
     private NavController navController;
     private MainViewModel viewModel;
     private SubmissionAdapter submissionAdapter;
+    private boolean isRefreshing = false;
 
 
     public SubmissionsFragment() {
@@ -79,7 +80,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
         // Setting swipe and refresh layout
         submissionsBinding.submissionsSwipeRefreshLayout.setOnRefreshListener(() -> {
             ViewUtils.hideViews(submissionsBinding.noSubmissionLayout);
-
+            isRefreshing = true;
             checksUser();
         });
 
@@ -112,7 +113,6 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
         }
 
         retrieveSubmissions();
-        showProgressBar();
     }
 
 
@@ -121,6 +121,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
      */
     private void retrieveSubmissions() {
         QueryHandler.getInstance(this).getSubmissions(viewModel.getUser().get_id());
+        if (!isRefreshing) showProgressBar();
     }
 
 
@@ -130,6 +131,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
     private void hideProgressBar() {
         ViewUtils.hideProgressBar(submissionsBinding.submissionsOverlayLayLayout);
         ViewUtils.handleRefreshing(submissionsBinding.submissionsSwipeRefreshLayout);
+        isRefreshing = false;
     }
 
     /*

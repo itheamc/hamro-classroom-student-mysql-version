@@ -36,6 +36,7 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
     private FragmentProfileBinding profileBinding;
     private MainViewModel viewModel;
     private NavController navController;
+    private boolean isRefreshing = false;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -65,7 +66,13 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         // Calling function to pass data
-        passDataToBinding(viewModel.getUser());
+        handleUser(viewModel.getUser());
+
+        // Setting SwipeRefresh Listener
+        profileBinding.profileSwipeRefreshLayout.setOnRefreshListener(() -> {
+            isRefreshing = true;
+            handleUser(null);
+        });
 
         // Handling Back Button
         profileBinding.backButton.setOnClickListener(v -> {
@@ -74,11 +81,11 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
     }
 
     // Function to pass data to the dataBinding
-    private void passDataToBinding(User user) {
+    private void handleUser(User user) {
         if (user == null) {
             if (getActivity() != null) {
                 QueryHandler.getInstance(this).getUser(LocalStorage.getInstance(getActivity()).getUserId());
-                ViewUtils.showProgressBar(profileBinding.profileOverlayLayLayout);
+                if (!isRefreshing) ViewUtils.showProgressBar(profileBinding.profileOverlayLayLayout);
             }
             return;
         }
@@ -105,14 +112,19 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
         if (profileBinding == null) return;
         if (user != null) {
             viewModel.setUser(user);
-            passDataToBinding(user);
+            handleUser(user);
             ViewUtils.hideProgressBar(profileBinding.profileOverlayLayLayout);
+            ViewUtils.handleRefreshing(profileBinding.profileSwipeRefreshLayout);
+            isRefreshing = false;
         }
     }
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (profileBinding == null) return;
+        ViewUtils.hideProgressBar(profileBinding.profileOverlayLayLayout);
+        ViewUtils.handleRefreshing(profileBinding.profileSwipeRefreshLayout);
+        isRefreshing = false;
     }
 
     @Override
@@ -121,5 +133,7 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
         NotifyUtils.logDebug(TAG, "onFailure: " + e.getMessage());
         if (getContext() == null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
         ViewUtils.hideProgressBar(profileBinding.profileOverlayLayLayout);
+        ViewUtils.handleRefreshing(profileBinding.profileSwipeRefreshLayout);
+        isRefreshing = false;
     }
 }

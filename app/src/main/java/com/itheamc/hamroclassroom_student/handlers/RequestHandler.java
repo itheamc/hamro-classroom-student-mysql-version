@@ -314,8 +314,8 @@ public class RequestHandler {
     }
 
     // GET REQUEST
-    public static Request noticeGetRequestBySchoolAndClass(@NonNull String schoolId, @NonNull String _class) {
-        return new Request.Builder().url(PathHandler.NOTICES_PATH + schoolId + "___" + _class).get().build();
+    public static Request noticeGetRequestBySchoolAndClass(@NonNull String schoolId) {
+        return new Request.Builder().url(PathHandler.NOTICES_PATH + schoolId).addHeader("by", "school").get().build();
     }
 
     // POST REQUEST

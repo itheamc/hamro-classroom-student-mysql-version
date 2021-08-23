@@ -557,9 +557,9 @@ public class QueryHandler {
      * Function to get notices list from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getNotices(String schoolId, String _class) {
+    public void getNotices(String schoolId) {
         executorService.execute(() -> {
-            client.newCall(RequestHandler.noticeGetRequestBySchoolAndClass(schoolId, _class)).enqueue(new Callback() {
+            client.newCall(RequestHandler.noticeGetRequestBySchoolAndClass(schoolId)).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     notifyFailure(e);

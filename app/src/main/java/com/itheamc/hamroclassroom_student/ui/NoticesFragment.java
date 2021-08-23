@@ -41,6 +41,7 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
     private NavController navController;
     private MainViewModel viewModel;
     private NoticeAdapter noticeAdapter;
+    private boolean isRefreshing = false;
 
 
 
@@ -80,6 +81,8 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
         // Setting swipe and refresh layout
         noticesBinding.noticesSwipeRefreshLayout.setOnRefreshListener(() -> {
             viewModel.setNotices(null);
+            isRefreshing = true;
+            ViewUtils.hideViews(noticesBinding.noNoticeLayout);
             checksUser();
         });
 
@@ -91,20 +94,11 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
 
 
         // Checks User for assignment extraction
-        if (viewModel.get_past_date() != 0) {
-            long timeDiff = OtherUtils.timeDifference(viewModel.get_past_date());
-            if (timeDiff < 90) {
-                List<Notice> storedNotices = viewModel.getNotices();
-                if (storedNotices != null && !storedNotices.isEmpty()) {
-                    noticeAdapter.submitList(storedNotices);
-                } else {
-                    checksUser();
-                }
-            } else {
-                checksUser();
-            }
-        } else {
+        List<Notice> notices = viewModel.getNotices();
+        if (notices == null) {
             checksUser();
+        } else {
+            handleNotices(notices);
         }
 
 
@@ -125,7 +119,6 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
         }
 
         retrieveNotices(user);
-        showProgress();
     }
 
     /**
@@ -133,13 +126,26 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
      */
     private void retrieveNotices(@NonNull User user) {
         String schoolId = user.get_school_ref();
-        String _class = user.get_class();
-        if ((schoolId == null || schoolId.isEmpty()) || (_class == null || _class.isEmpty())) {
+        if ((schoolId == null || schoolId.isEmpty())) {
             hideProgress();
             return;
         }
 
-        QueryHandler.getInstance(this).getNotices(schoolId, _class);
+        QueryHandler.getInstance(this).getNotices(schoolId);
+        if (!isRefreshing) showProgress();
+    }
+
+    /**
+     * Function to handle notices
+     */
+    private void handleNotices(List<Notice> notices) {
+        if (notices.isEmpty()) {
+            ViewUtils.visibleViews(noticesBinding.noNoticeLayout);
+            return;
+        }
+
+        viewModel.setNotices(notices);
+        noticeAdapter.submitList(notices);
     }
 
 
@@ -156,27 +162,19 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
     private void hideProgress() {
         ViewUtils.hideProgressBar(noticesBinding.noticesOverlayLayLayout);
         ViewUtils.handleRefreshing(noticesBinding.noticesSwipeRefreshLayout);
+        isRefreshing = false;
     }
 
 
     /**
-     * Methods implemented from the FirestoreCallbacks
-     * @param user - an user object got from the database
-     * @param schools - list of schools got from the database
-     * @param teachers - list of teachers got from the database
-     * @param subjects - list of subjects got from the database
-     * @param assignments - list of assignments got from the database
-     * @param submissions - list of submissions got from the database
-     * @param notices - list of notices got from the database
+     * Methods implemented from the QueryCallbacks
      */
     @Override
     public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
         if (noticesBinding == null) return;
 
         if (notices != null) {
-            viewModel.setNotices(notices);
-            noticeAdapter.submitList(notices);
-            viewModel.set_past_date(new Date().getTime());
+            handleNotices(notices);
             hideProgress();
             return;
         }
@@ -196,7 +194,9 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
 
     @Override
     public void onQuerySuccess(String message) {
-
+        if (noticesBinding == null) return;
+        if (message.equals("Not found")) ViewUtils.visibleViews(noticesBinding.noNoticeLayout);
+        hideProgress();
     }
 
     @Override
