@@ -1,5 +1,6 @@
 package com.itheamc.hamroclassroom_student.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.itheamc.hamroclassroom_student.R;
 import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.FragmentProfileBinding;
@@ -77,6 +79,15 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
         // Handling Back Button
         profileBinding.backButton.setOnClickListener(v -> {
             navController.popBackStack();
+        });
+
+        // Handling logout
+        profileBinding.signOutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            if (getActivity() != null) LocalStorage.getInstance(getActivity()).storeUserId(null);
+            Intent intent = new Intent(requireActivity(), LoginActivity.class);
+            startActivity(intent);
+            requireActivity().finish();
         });
     }
 

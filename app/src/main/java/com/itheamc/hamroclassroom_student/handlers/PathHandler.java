@@ -3,6 +3,11 @@ package com.itheamc.hamroclassroom_student.handlers;
 public class PathHandler {
 
     /*
+    Privacy Policy Url
+     */
+    public static final String PRIVACY_POLICY_URL = "https://sites.google.com/view/hamroclassroom/privacy-policy";
+
+    /*
    Base Path
     */
     public static final String BASE_PATH = "https://hamroclassroom.amcbizprojects.co.in/";

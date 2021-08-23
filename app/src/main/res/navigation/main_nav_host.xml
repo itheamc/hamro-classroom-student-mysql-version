@@ -12,19 +12,39 @@
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_assignmentsFragment"
-            app:destination="@id/assignmentsFragment" />
+            app:destination="@id/assignmentsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            app:destination="@id/profileFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_homeFragment_to_classesFragment"
-            app:destination="@id/classesFragment" />
+            app:destination="@id/classesFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_homeFragment_to_noticesFragment"
-            app:destination="@id/noticesFragment" />
+            app:destination="@id/noticesFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_homeFragment_to_submissionsFragment"
-            app:destination="@id/submissionsFragment" />
+            app:destination="@id/submissionsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -43,10 +63,18 @@
         tools:layout="@layout/fragment_assignments" >
         <action
             android:id="@+id/action_assignmentsFragment_to_assignmentFragment"
-            app:destination="@id/assignmentFragment" />
+            app:destination="@id/assignmentFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_assignmentsFragment_to_submitFragment"
-            app:destination="@id/submitFragment" />
+            app:destination="@id/submitFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/classesFragment"
@@ -55,10 +83,18 @@
         tools:layout="@layout/fragment_classes" >
         <action
             android:id="@+id/action_classesFragment_to_assignmentsFragment"
-            app:destination="@id/assignmentsFragment" />
+            app:destination="@id/assignmentsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_classesFragment_to_subjectsFragment"
-            app:destination="@id/subjectsFragment" />
+            app:destination="@id/subjectsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/noticesFragment"
@@ -67,7 +103,11 @@
         tools:layout="@layout/fragment_notices" >
         <action
             android:id="@+id/action_noticesFragment_to_noticeFragment"
-            app:destination="@id/noticeFragment" />
+            app:destination="@id/noticeFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/noticeFragment"
@@ -81,10 +121,18 @@
         tools:layout="@layout/fragment_submissions" >
         <action
             android:id="@+id/action_submissionsFragment_to_assignmentFragment"
-            app:destination="@id/assignmentFragment" />
+            app:destination="@id/assignmentFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_submissionsFragment_to_submissionFragment"
-            app:destination="@id/submissionFragment" />
+            app:destination="@id/submissionFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/submissionFragment"
