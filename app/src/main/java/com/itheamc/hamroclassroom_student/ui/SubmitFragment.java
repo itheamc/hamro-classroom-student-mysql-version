@@ -42,6 +42,7 @@ import com.itheamc.hamroclassroom_student.models.User;
 import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 import com.itheamc.hamroclassroom_student.utils.IdGenerator;
 import com.itheamc.hamroclassroom_student.utils.ImageUtils;
+import com.itheamc.hamroclassroom_student.utils.LocalStorage;
 import com.itheamc.hamroclassroom_student.utils.NotifyUtils;
 import com.itheamc.hamroclassroom_student.utils.TimeUtils;
 import com.itheamc.hamroclassroom_student.utils.ViewUtils;
@@ -53,7 +54,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class SubmitFragment extends Fragment implements StorageCallbacks, QueryCallbacks, ImageCallbacks {
+public class SubmitFragment extends Fragment implements StorageCallbacks, ImageCallbacks {
     private static final String TAG = "SubmitFragment";
     private FragmentSubmitBinding submitBinding;
     private MainViewModel viewModel;
@@ -67,13 +68,9 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
     private ImageAdapter imageAdapter;
 
     /*
-   Integer to store the uploaded image qty
-    */
-    int uploadCount = 0;
-    /*
    List to store the uploaded image url
     */
-    private List<String> imagesList;
+    private String[] images;
 
     /*
     TextInputLayout
@@ -88,14 +85,12 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
     /*
     Strings
      */
-    private String _submissionId;
     private String _text = "";
 
     /*
     Boolean
      */
     private boolean is_uploading = false;   // To handle the image remove
-    private boolean is_submitted = false;   // To handle the submission id update in user
 
 
     // Constructor
@@ -122,7 +117,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initializing NavController and ViewModel
+        // Initializing NavController and MainViewModel
         navController = Navigation.findNavController(view);
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
@@ -134,9 +129,6 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
         textInputLayout = submitBinding.textInputLayout;
 
         textEdittext = textInputLayout.getEditText();
-
-        // Initializing imageList
-        imagesList = new ArrayList<>();
 
         // Activity Result launcher to listen the result of the multi image picker
         imagePickerResultLauncher = registerForActivityResult(
@@ -169,7 +161,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
                         submitImagesToImageAdapter();   // Submitting image to adapter
 
                     } else {
-                        NotifyUtils.logDebug(TAG, "Image Picker Closed WithOut Picking Any Images");
+                        NotifyUtils.showToast(getContext(), "Unable to pick images");
                     }
                 });
 
@@ -178,118 +170,12 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
          */
         submitBinding.imagePickerButton.setOnClickListener(v -> showImagePicker());
         submitBinding.submitButton.setOnClickListener(v -> {
-            _submissionId = IdGenerator.generateRandomId();
-            if (!isInputsValid() && (imagesUri == null || imagesUri.size() < 1)) {
-                if (getContext() != null) NotifyUtils.showToast(getContext(), "Please write your views in the text box or pick images");
-                return;
-            }
-
-            ViewUtils.showProgressBar(submitBinding.progressBarContainer);
-            ViewUtils.disableViews(submitBinding.submitButton, textInputLayout);
-
-            // If Images are attached then
-            if (imagesUri != null && imagesUri.size() > 0) {
-                handleImageUpload();
-                return;
-            }
-
-            // If images are not attached and something written on the text box then
-            storeOnFirestore();
+            showProgress();
+            storeOnDatabase();
+            is_uploading = true;
         });
 
 
-    }
-
-
-    /*
-    Function to submit data to image adapter
-     */
-    private void submitImagesToImageAdapter() {
-        if (imagesUri != null) imageAdapter.submitList(imagesUri);
-    }
-
-
-    /**
-     * --------------------------------------------------------------------------
-     * Function to handle image upload to cloud storage
-     * It will be triggered continuously until all the images will be uploaded
-     */
-    private void handleImageUpload() {
-        if (getActivity() == null) return;
-        Assignment assignment = viewModel.getAssignment();
-        Bitmap bitmap = ImageUtils.getInstance(getActivity().getContentResolver()).getBitmap(imagesUri.get(uploadCount));
-        if (bitmap != null) {
-            if (!is_uploading) is_uploading = true;
-            StorageHandler.getInstance(this)
-                    .uploadImage(bitmap,
-                            "image" + "-" + (uploadCount + 1) + ".jpg",
-                            assignment.get_subject_ref(),
-                            assignment.get_id(),
-                            _submissionId);
-        }
-    }
-
-    /**
-     * --------------------------------------------------------------------------
-     * Function to handle Firestore upload
-     * It will bi triggered only after all the images uploaded
-     */
-    private void storeOnFirestore() {
-        submitBinding.uploadedProgress.setText(R.string.finalizing_uploads);
-        User user = viewModel.getUser();
-
-        Assignment ass = viewModel.getAssignment();
-        String assId = ass.get_id();
-
-        // Creating new assignment object
-        Submission submission = new Submission(
-                _submissionId,
-                null,
-                null,
-                _text,
-                assId,
-                null,
-                user.get_id(),
-                null,
-                TimeUtils.now(),
-                "",
-                false,
-                ""
-        );
-
-        QueryHandler.getInstance(this)
-                .addSubmission(submission);
-
-    }
-
-
-    /*
-    Function to update submission id on the User._submissions list
-     */
-    private void updateSubmissionIdToUser() {
-        Assignment ass = viewModel.getAssignment();
-        if (ass == null) {
-            handleViews();
-            return;
-        }
-        User user = viewModel.getUser();
-//        QueryHandler.getInstance(this).addSubmissionToUser(user.get_id(), _submissionId);
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------------
-     * Function to display the progress update in textview while loading
-     */
-    private void updateUploadProgress(double progress) {
-        if (submitBinding == null) return;
-
-        String message = String.format(Locale.ROOT, "Uploading (%d/%d) Images", uploadCount + 1, imagesUri.size());
-        HandlerCompat.createAsync(Looper.getMainLooper())
-                .post(() -> {
-                    submitBinding.uploadedProgress
-                            .setText(message);
-                });
     }
 
     /**
@@ -306,28 +192,76 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
         // allowing multiple image to be selected
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        imagePickerResultLauncher.launch(Intent.createChooser(intent, "Pick Images"));
+        imagePickerResultLauncher.launch(Intent.createChooser(intent, "Select Images"));
     }
 
-    /**
-     * -----------------------------------------------------------------------------
-     * Function to verify inputs
+    /*
+    Function to submit data to image adapter
      */
-    private boolean isInputsValid() {
-        if (textEdittext != null) {
-            _text = textEdittext.getText().toString().trim();
-        } else {
-            _text = "";
-        }
-        return !TextUtils.isEmpty(_text);
+    private void submitImagesToImageAdapter() {
+        if (imagesUri != null && imagesUri.size() > 0) imageAdapter.submitList(imagesUri);
     }
+
+
+    /**
+     * --------------------------------------------------------------------------
+     * Function to handle Firestore upload
+     * It will bi triggered only after all the images uploaded
+     */
+    private void storeOnDatabase() {
+        if (getActivity() == null) return;
+        Assignment assignment = viewModel.getAssignment();
+        String userId = LocalStorage.getInstance(getActivity()).getUserId();
+        if (textEdittext != null) _text = textEdittext.getText().toString().trim();
+
+        HandlerCompat.createAsync(Looper.getMainLooper()).post(() -> submitBinding.uploadedProgress.setText("Please Wait.."));
+
+        // Creating new submission object
+        Submission submission = new Submission(
+                IdGenerator.generateRandomId(),
+                null,
+                null,
+                _text,
+                assignment.get_id(),
+                null,
+                userId,
+                null,
+                TimeUtils.now(),
+                "",
+                false,
+                ""
+
+        );
+
+        if (getActivity() != null) StorageHandler.getInstance(getActivity(), this)
+                .uploadImage(imagesUri, submission);
+    }
+
+    /*
+    Function to show progress
+     */
+    private void showProgress() {
+        ViewUtils.showProgressBar(submitBinding.progressBarContainer);
+        ViewUtils.disableViews(submitBinding.submitButton, textInputLayout);
+    }
+
+    /*
+    Function to hide progress
+     */
+    private void hideProgress() {
+        ViewUtils.hideProgressBar(submitBinding.progressBarContainer);
+        ViewUtils.enableViews(submitBinding.submitButton, textInputLayout);
+    }
+
+
 
     /**
      * ---------------------------------------------------------------------------
      * Function to make edittext clear
      */
-    private void clearAllInputs() {
+    private void clearEdittext() {
         if (submitBinding == null) return;
+
         ViewUtils.clearEditTexts(textEdittext);
         if (imagesUri != null) {
             imagesUri.clear();
@@ -337,53 +271,33 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
     }
 
 
-    /*
-    Function to hide progressBar Layout
-     */
-    private void handleViews() {
-        ViewUtils.hideProgressBar(submitBinding.progressBarContainer);
-        ViewUtils.enableViews(submitBinding.submitButton, textInputLayout);
-    }
-
-
     /**
-     * -------------------------------------------------------------------------
-     * These are the methods implemented from the StorageCallbacks
-     * -------------------------------------------------------------------------
+     * ----------------------------------------------------------------------------------------
+     * These are the methods implemented from the StorageCalbacks
+     * @param message - success response message
      */
 
     @Override
-    public void onSuccess(String imageUrl) {
+    public void onSuccess(String message) {
         if (submitBinding == null) return;
-        if (imagesList == null) imagesList = new ArrayList<>();
-        imagesList.add(imageUrl);
-        uploadCount += 1;
-        if (uploadCount < imagesUri.size()) {
-            handleImageUpload();
-            return;
-        }
-
-        // Storing to cloud Firestore
-        storeOnFirestore();
+        hideProgress();
+        if (getContext() != null) NotifyUtils.showToast(getContext(), "Added Successfully");
+        is_uploading = false;
+        clearEdittext();
     }
 
     @Override
     public void onFailure(Exception e) {
         if (submitBinding == null) return;
         if (getContext() != null) NotifyUtils.showToast(getContext(), "Upload Failed");
+        NotifyUtils.logError(TAG, "onFailure()", e);
         is_uploading = false;
-        is_submitted = false;
-        uploadCount = 0;
-        handleViews();
-
+        hideProgress();
     }
 
     @Override
     public void onCanceled() {
-        if (submitBinding == null) return;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), "You canceled the upload!");
-        is_uploading = false;
-        handleViews();
+
     }
 
     /**
@@ -401,49 +315,6 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
         if (imagesUri.size() == 0) ViewUtils.visibleViews(submitBinding.imagePickerButton);
     }
 
-    /**
-     * ------------------------------------------------------------------------------------------
-     * This method is implemented from the QueryCallbacks
-     * ------------------------------------------------------------------------------------------
-     */
-    @Override
-    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
-        if (submitBinding == null) return;
-
-        if (!is_submitted) {
-            is_submitted = true;
-            updateSubmissionIdToUser();
-            return;
-        }
-
-        handleViews();
-        if (getContext() != null) NotifyUtils.showToast(getContext(), "Added Successfully");
-        uploadCount = 0;
-        is_uploading = false;
-        is_submitted = false;
-        clearAllInputs();
-    }
-
-    @Override
-    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
-
-    }
-
-    @Override
-    public void onQuerySuccess(String message) {
-
-    }
-
-    @Override
-    public void onQueryFailure(Exception e) {
-        if (submitBinding == null) return;
-        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
-        is_uploading = false;
-        is_submitted = false;
-        uploadCount = 0;
-        handleViews();
-    }
-
 
     /*
     Overrided function to view destroy
@@ -453,4 +324,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, QueryC
         super.onDestroyView();
         submitBinding = null;
     }
+
+
+
 }
