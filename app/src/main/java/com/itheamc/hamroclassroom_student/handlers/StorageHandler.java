@@ -3,6 +3,7 @@ package com.itheamc.hamroclassroom_student.handlers;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
@@ -99,10 +100,9 @@ public class StorageHandler {
 
                     String s = imageUtils.getFilePath(uri);
                     File file = new File(activity.getCacheDir(), s);
-                    FileOutputStream outputStream = null;
                     try {
-                        outputStream = new FileOutputStream(file);
-                        byte[] bytes = imageUtils.getByteArray(uri, 15);
+                        FileOutputStream outputStream = new FileOutputStream(file);
+                        byte[] bytes = imageUtils.getByteArray(uri, 10);
                         outputStream.write(bytes);
                         outputStream.close();
                         Uri uris = Uri.fromFile(file);
@@ -136,6 +136,7 @@ public class StorageHandler {
                         .header("Content-Type", "application/x-www-form-urlencoded")
                         .post(requestBody)
                         .build();
+
             } else {
                 // If images are not selected for upload
                 RequestBody rb = new FormBody.Builder()
@@ -160,7 +161,6 @@ public class StorageHandler {
                     .callTimeout(300, TimeUnit.SECONDS)
                     .connectTimeout(60, TimeUnit.SECONDS)
                     .build();
-
 
             okHttpClient.newCall(requestBuilder.build()).enqueue(new Callback() {
                 @Override

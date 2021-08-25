@@ -161,7 +161,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, ImageC
                         submitImagesToImageAdapter();   // Submitting image to adapter
 
                     } else {
-                        NotifyUtils.showToast(getContext(), "Unable to pick images");
+                        NotifyUtils.logDebug(TAG, "|____Image picker closed____|");
                     }
                 });
 
@@ -170,9 +170,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, ImageC
          */
         submitBinding.imagePickerButton.setOnClickListener(v -> showImagePicker());
         submitBinding.submitButton.setOnClickListener(v -> {
-            showProgress();
             storeOnDatabase();
-            is_uploading = true;
         });
 
 
@@ -233,8 +231,12 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, ImageC
 
         );
 
-        if (getActivity() != null) StorageHandler.getInstance(getActivity(), this)
-                .uploadImage(imagesUri, submission);
+        if (getActivity() != null) {
+            showProgress();
+            is_uploading = true;
+            StorageHandler.getInstance(getActivity(), this)
+                    .uploadImage(imagesUri, submission);
+        }
     }
 
     /*
@@ -265,7 +267,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, ImageC
         ViewUtils.clearEditTexts(textEdittext);
         if (imagesUri != null) {
             imagesUri.clear();
-            imageAdapter.submitList(new ArrayList<>());
+            imageAdapter.submitList(imagesUri);
         }
         ViewUtils.visibleViews(submitBinding.imagePickerButton);    // To Show the image picker button
     }

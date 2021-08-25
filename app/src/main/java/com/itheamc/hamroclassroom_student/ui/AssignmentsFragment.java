@@ -1,6 +1,7 @@
 package com.itheamc.hamroclassroom_student.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -224,6 +225,7 @@ public class AssignmentsFragment extends Fragment implements QueryCallbacks, Ass
 
         // If Assignment is retrieved
         if (assignments != null) {
+            Log.d(TAG, "onQuerySuccess: " + assignments.toString());
             handleAssignments(assignments);
         }
     }
