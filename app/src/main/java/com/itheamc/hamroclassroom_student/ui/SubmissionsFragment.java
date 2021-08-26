@@ -1,6 +1,7 @@
 package com.itheamc.hamroclassroom_student.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -185,6 +186,7 @@ public class SubmissionsFragment extends Fragment implements QueryCallbacks, Sub
         if (submissionsBinding == null) return;
         hideProgressBar();
         if (e.getMessage() == null) return;
+        Log.d(TAG, "onQueryFailure: " + e.getMessage());
         if (getContext() != null) NotifyUtils.showToast(getContext(),getString(R.string.went_wrong_message));
     }
 

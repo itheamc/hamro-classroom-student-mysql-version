@@ -205,18 +205,18 @@ public class RequestHandler {
     public static final Request GET_REQUEST_ASSIGNMENTS = new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH).get().build();
 
     // GET REQUEST
-    public static Request assignmentGetRequestById(@NonNull String _id) {
-        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _id).addHeader("by", "id").get().build();
+    public static Request assignmentGetRequestById(@NonNull String _userId, @NonNull String _id) {
+        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _id).addHeader("by", "id").addHeader("user", _userId).get().build();
     }
 
     // GET REQUEST
-    public static Request assignmentGetRequestByTeacherId(@NonNull String _teacherId) {
-        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _teacherId).addHeader("by", "teacher").get().build();
+    public static Request assignmentGetRequestByTeacherId(@NonNull String _userId, @NonNull String _teacherId) {
+        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _teacherId).addHeader("by", "teacher").addHeader("user", _userId).get().build();
     }
 
     // GET REQUEST
-    public static Request assignmentGetRequestBySubjectId(@NonNull String _subjectId) {
-        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _subjectId).addHeader("by", "subject").get().build();
+    public static Request assignmentGetRequestBySubjectId(@NonNull String _userId, @NonNull String _subjectId) {
+        return new Request.Builder().url(PathHandler.ASSIGNMENTS_PATH + _subjectId).addHeader("by", "subject").addHeader("user", _userId).get().build();
     }
 
     // GET REQUEST

@@ -250,9 +250,9 @@ public class QueryHandler {
      * Function to get assignments list from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getAssignmentsBySubject(String subjectId) {
+    public void getAssignmentsBySubject(String userId, String subjectId) {
         executorService.execute(() -> {
-            client.newCall(RequestHandler.assignmentGetRequestBySubjectId(subjectId)).enqueue(new Callback() {
+            client.newCall(RequestHandler.assignmentGetRequestBySubjectId(userId, subjectId)).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     notifyFailure(e);
@@ -338,9 +338,9 @@ public class QueryHandler {
      * Function to get assignment from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getAssignment(String assignment_ref) {
+    public void getAssignment(String userId, String assignment_ref) {
         executorService.execute(() -> {
-            client.newCall(RequestHandler.assignmentGetRequestById(assignment_ref)).enqueue(new Callback() {
+            client.newCall(RequestHandler.assignmentGetRequestById(userId, assignment_ref)).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     notifyFailure(e);
