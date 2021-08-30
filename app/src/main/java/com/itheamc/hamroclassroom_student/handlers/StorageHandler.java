@@ -37,7 +37,6 @@ import okhttp3.Response;
 
 public class StorageHandler {
     private static final String TAG = "StorageHandler";
-    private static StorageHandler instance;
     private final StorageCallbacks storageCallback;
     private final FragmentActivity activity;
     private final ExecutorService executorService;
@@ -60,10 +59,7 @@ public class StorageHandler {
 
     // Instance for Cloud Storage
     public static StorageHandler getInstance(@NonNull FragmentActivity activity, @NonNull StorageCallbacks storageCallback) {
-        if (instance == null) {
-            instance = new StorageHandler(activity, storageCallback);
-        }
-        return instance;
+        return new StorageHandler(activity, storageCallback);
     }
 
 

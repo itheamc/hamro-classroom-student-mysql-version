@@ -3,6 +3,7 @@ package com.itheamc.hamroclassroom_student.handlers;
 import androidx.annotation.NonNull;
 
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.User;
@@ -10,6 +11,7 @@ import com.itheamc.hamroclassroom_student.models.Subject;
 import com.itheamc.hamroclassroom_student.models.Submission;
 import com.itheamc.hamroclassroom_student.models.Teacher;
 import com.itheamc.hamroclassroom_student.models.UserSubject;
+import com.itheamc.hamroclassroom_student.utils.Amcryption;
 import com.itheamc.hamroclassroom_student.utils.ArrayUtils;
 
 import org.json.JSONArray;
@@ -57,28 +59,27 @@ public class JsonHandler {
 
     // Teacher Response Handler
     public static Teacher getTeacher(@NonNull JSONObject jsonObject) throws JSONException {
-        JSONObject userObj;
+        JSONObject teacherObj;
 
-        if (jsonObject.has("teacher")) userObj = jsonObject.getJSONObject("teacher");
-        else if (jsonObject.has("_teacher")) userObj = jsonObject.getJSONObject("_teacher");
-        else userObj = jsonObject;
+        if (jsonObject.has("teacher")) teacherObj = jsonObject.getJSONObject("teacher");
+        else if (jsonObject.has("_teacher")) teacherObj = jsonObject.getJSONObject("_teacher");
+        else teacherObj = jsonObject;
 
         // Getting school obj
-
-//        School school = getSchool(userObj);
+        School school = getSchool(teacherObj);
 
         // Creating new user and returning it
         return new Teacher(
-                userObj.getString("_id"),
-                userObj.getString("_name"),
-                userObj.getString("_gender"),
-                userObj.getString("_image"),
-                userObj.getString("_phone"),
-                userObj.getString("_email"),
-                userObj.getString("_address"),
-                userObj.getString("_school"),
-                null,
-                userObj.getString("_joined_on")
+                teacherObj.getString("_id"),
+                Amcryption.getDecoder().decode(teacherObj.getString("_name")),
+                Amcryption.getDecoder().decode(teacherObj.getString("_gender")),
+                teacherObj.getString("_image"),
+                Amcryption.getDecoder().decode(teacherObj.getString("_phone")),
+                Amcryption.getDecoder().decode(teacherObj.getString("_email")),
+                Amcryption.getDecoder().decode(teacherObj.getString("_address")),
+                school.get_id(),
+                school,
+                teacherObj.getString("_joined_on")
         );
     }
 
@@ -99,13 +100,13 @@ public class JsonHandler {
         // Creating new student and returning it
         return new User(
                 studentObj.getString("_id"),
-                studentObj.getString("_name"),
-                studentObj.getString("_gender"),
+                Amcryption.getDecoder().decode(studentObj.getString("_name")),
+                Amcryption.getDecoder().decode(studentObj.getString("_gender")),
                 studentObj.getString("_image"),
-                studentObj.getString("_phone"),
-                studentObj.getString("_email"),
-                studentObj.getString("_address"),
-                studentObj.getString("_guardian"),
+                Amcryption.getDecoder().decode(studentObj.getString("_phone")),
+                Amcryption.getDecoder().decode(studentObj.getString("_email")),
+                Amcryption.getDecoder().decode(studentObj.getString("_address")),
+                Amcryption.getDecoder().decode(studentObj.getString("_guardian")),
                 String.valueOf(studentObj.getInt("_class")),
                 studentObj.getString("_section"),
                 String.valueOf(studentObj.getInt("_roll_number")),
@@ -180,8 +181,8 @@ public class JsonHandler {
                 assignmentObj.getString("_id"),
                 assignmentObj.getString("_title"),
                 assignmentObj.getString("_desc"),
-                ArrayUtils.toArray(assignmentObj.getString("_images"), ","),
-                ArrayUtils.toArray(assignmentObj.getString("_docs"), ","),
+                ArrayUtils.toArray(assignmentObj.getString("_images"), ", "),
+                ArrayUtils.toArray(assignmentObj.getString("_docs"), ", "),
                 String.valueOf(assignmentObj.getInt("_class")),
                 subject.get_teacher_ref(),
                 subject.get_teacher(),
@@ -195,6 +196,38 @@ public class JsonHandler {
         );
 
     }
+
+
+    // Material Response Handler
+    public static Material getMaterial(@NonNull JSONObject jsonObject) throws JSONException {
+        JSONObject materialOnj;
+
+        if (jsonObject.has("material")) materialOnj = jsonObject.getJSONObject("material");
+        else if (jsonObject.has("_material")) materialOnj = jsonObject.getJSONObject("_material");
+        else materialOnj = jsonObject;
+
+
+        // Getting subject
+        Subject subject = getSubject(materialOnj);
+
+        // Getting Material and returning it
+        return new Material(
+                materialOnj.getString("_id"),
+                materialOnj.getString("_title"),
+                ArrayUtils.toArray(materialOnj.getString("_images"), ", "),
+                ArrayUtils.toArray(materialOnj.getString("_docs"), ", "),
+                String.valueOf(materialOnj.getInt("_class")),
+                subject.get_teacher_ref(),
+                subject.get_teacher(),
+                subject.get_id(),
+                subject,
+                subject.get_school_ref(),
+                subject.get_school(),
+                materialOnj.getString("_added_date")
+        );
+
+    }
+
 
 
     // Submissions Response Handler
@@ -240,13 +273,14 @@ public class JsonHandler {
 
         // Getting Assignment
         Teacher teacher = getTeacher(noticeObj);
+        School school = getSchool(noticeObj);
 
         return new Notice(
                 noticeObj.getString("_id"),
                 noticeObj.getString("_title"),
                 noticeObj.getString("_desc"),
-                noticeObj.getString("_school"),
-                null,
+                school.get_id(),
+                school,
                 ArrayUtils.toArray(noticeObj.getString("_classes"), ", "),
                 teacher.get_id(),
                 teacher,
@@ -337,6 +371,21 @@ public class JsonHandler {
         }
 
         return assignments;
+    }
+
+    // Materials Response Handler
+    public static List<Material> getMaterials(@NonNull JSONObject jsonObject) throws JSONException {
+        List<Material> materials = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.getJSONArray("materials");
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jo = jsonArray.getJSONObject(i);
+
+            // Adding Assignment
+            materials.add(getMaterial(jo));
+        }
+
+        return materials;
     }
 
     // Submissions Response Handler

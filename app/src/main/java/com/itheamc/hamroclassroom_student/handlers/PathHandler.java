@@ -37,8 +37,6 @@ public class PathHandler {
     Paths for Assignment
      */
     public static final String ASSIGNMENTS_PATH = BASE_PATH + "assignments/";
-    public static final String IMAGES_UPLOAD_PATH = "https://uploadimages.amcbizprojects.co.in/uploads";
-    public static final String DOCS_UPLOAD_PATH = "https://uploadimages.amcbizprojects.co.in/uploads";
 
 
     /*
@@ -50,4 +48,9 @@ public class PathHandler {
     Paths for Notice
      */
     public static final String NOTICES_PATH = BASE_PATH + "notices/";
+
+    /*
+    Paths for Material
+    */
+    public static final String MATERIALS_PATH = BASE_PATH + "materials/";
 }
