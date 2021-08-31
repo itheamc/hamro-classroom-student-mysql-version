@@ -204,7 +204,7 @@ public class NoticesFragment extends Fragment implements QueryCallbacks, NoticeC
     public void onQueryFailure(Exception e) {
         if (noticesBinding == null) return;
         hideProgress();
-        NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
+        if (getContext() != null) NotifyUtils.showToast(getContext(), getString(R.string.went_wrong_message));
         NotifyUtils.logError(TAG, "onFailure()", e);
     }
 

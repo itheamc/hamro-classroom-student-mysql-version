@@ -81,7 +81,7 @@ public class StorageHandler {
         executorService.execute(() -> {
 
             Request.Builder requestBuilder = new Request.Builder()
-                    .url(PathHandler.SUBMISSIONS_PATH);
+                    .url(PathHandler.SUBMISSIONS_PATH).headers(AuthHandler.authHeaders(null, null));
 
             // If images are selected for upload
             if (imagesUri != null && imagesUri.size() > 0) {

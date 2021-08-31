@@ -21,7 +21,7 @@
             android:id="@+id/editTextLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="28dp"
             android:layout_marginTop="24dp"
             android:fontFamily="@font/dekko"
             android:text="@string/put_your_views_here_optional" />
@@ -31,8 +31,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp"
+            android:layout_marginLeft="28dp"
+            android:layout_marginRight="28dp"
             android:gravity="bottom"
             app:errorEnabled="true">
 
@@ -50,7 +50,7 @@
             android:id="@+id/imageLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="28dp"
             android:fontFamily="@font/dekko"
             android:text="@string/pick_images_you_want_to_attach" />
 
