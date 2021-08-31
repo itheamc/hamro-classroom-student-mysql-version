@@ -24,6 +24,7 @@ import com.itheamc.hamroclassroom_student.callbacks.SubjectCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.FragmentClassesBinding;
 import com.itheamc.hamroclassroom_student.handlers.QueryHandler;
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.Subject;
@@ -232,7 +233,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
      * These are the methods overrided from the QueryCallbacks
      */
     @Override
-    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Material> materials, List<Notice> notices) {
         if (classesBinding == null) return;
 
         // If Subjects retrieve from the firestore
@@ -244,7 +245,7 @@ public class ClassesFragment extends Fragment implements SubjectCallbacks, Query
     }
 
     @Override
-    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Material material, Notice notice) {
         if (classesBinding == null) return;
 
         // If User retrieved from the Firestore

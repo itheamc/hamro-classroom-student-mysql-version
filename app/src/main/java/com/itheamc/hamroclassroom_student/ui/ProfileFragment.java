@@ -19,6 +19,7 @@ import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.FragmentProfileBinding;
 import com.itheamc.hamroclassroom_student.handlers.QueryHandler;
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.Subject;
@@ -114,12 +115,12 @@ public class ProfileFragment extends Fragment implements QueryCallbacks {
      * -------------------------------------------------------------------
      */
     @Override
-    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Material> materials, List<Notice> notices) {
 
     }
 
     @Override
-    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Material material, Notice notice) {
         if (profileBinding == null) return;
         if (user != null) {
             viewModel.setUser(user);

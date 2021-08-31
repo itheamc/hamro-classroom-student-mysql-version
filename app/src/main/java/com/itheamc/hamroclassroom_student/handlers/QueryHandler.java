@@ -8,6 +8,7 @@ import androidx.core.os.HandlerCompat;
 
 import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.Subject;
@@ -73,6 +74,7 @@ public class QueryHandler {
 
                             User user = JsonHandler.getStudent(jsonObject);
                             notifySuccess(user,
+                                    null,
                                     null,
                                     null,
                                     null,
@@ -231,6 +233,7 @@ public class QueryHandler {
                                     subjects,
                                     null,
                                     null,
+                                    null,
                                     null);
                             return;
                         }
@@ -274,6 +277,7 @@ public class QueryHandler {
                                     null,
                                     null,
                                     assignments,
+                                    null,
                                     null,
                                     null);
                             return;
@@ -319,6 +323,7 @@ public class QueryHandler {
                                     null,
                                     assignments,
                                     null,
+                                    null,
                                     null);
                             return;
                         }
@@ -335,12 +340,12 @@ public class QueryHandler {
 
 
     /**
-     * Function to get assignment from the Database
+     * Function to get assignments list from the Database
      * --------------------------------------------------------------------------------------
      */
-    public void getAssignment(String userId, String assignment_ref) {
+    public void getMaterials(String _userId) {
         executorService.execute(() -> {
-            client.newCall(RequestHandler.assignmentGetRequestById(userId, assignment_ref)).enqueue(new Callback() {
+            client.newCall(RequestHandler.materialsGetRequestByUserRef(_userId)).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     notifyFailure(e);
@@ -356,14 +361,14 @@ public class QueryHandler {
                                 return;
                             }
 
-                            Assignment assignment = JsonHandler.getAssignment(jsonObject);
-
+                            List<Material> materials = JsonHandler.getMaterials(jsonObject);
                             notifySuccess(null,
                                     null,
                                     null,
                                     null,
-                                    assignment,
                                     null,
+                                    null,
+                                    materials,
                                     null);
                             return;
                         }
@@ -376,49 +381,6 @@ public class QueryHandler {
                 }
             });
         });
-    }
-
-
-    /**
-     * Function to add submissions in the Database
-     * --------------------------------------------------------------------------------------
-     */
-    public void addSubmission(Submission submission) {
-        executorService.execute(() -> {
-            client.newCall(RequestHandler.submissionPostRequest(submission)).enqueue(new Callback() {
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    notifyFailure(e);
-                }
-
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response.body().string());
-                        if (response.isSuccessful()) {
-                            if (jsonObject.getString("message").equals("success")) {
-                                notifySuccess(jsonObject.getString("message"));
-                            } else {
-                                notifyFailure(new Exception(jsonObject.getString("message")));
-                            }
-                            return;
-                        }
-                        notifyFailure(new Exception("Unable to add"));
-                    } catch (Exception e) {
-                        notifyFailure(e);
-                    }
-                }
-            });
-        });
-    }
-
-
-    /**
-     * Function to update submission in the Database
-     * --------------------------------------------------------------------------------------
-     */
-    public void updateSubmission(String subjectId, String assignmentId, String submissionId, Map<String, Object> data) {
-
     }
 
 
@@ -451,6 +413,7 @@ public class QueryHandler {
                                     null,
                                     null,
                                     submissions,
+                                    null,
                                     null);
                             return;
                         }
@@ -493,6 +456,7 @@ public class QueryHandler {
                             notifySuccess(null,
                                     null,
                                     teacher,
+                                    null,
                                     null,
                                     null,
                                     null,
@@ -539,6 +503,7 @@ public class QueryHandler {
                                     null,
                                     null,
                                     null,
+                                    null,
                                     null);
                             return;
                         }
@@ -577,6 +542,7 @@ public class QueryHandler {
 
                             List<Notice> notices = JsonHandler.getNotices(jsonObject);
                             notifySuccess(null,
+                                    null,
                                     null,
                                     null,
                                     null,
@@ -626,6 +592,7 @@ public class QueryHandler {
                                     null,
                                     null,
                                     null,
+                                    null,
                                     null);
                             return;
                         }
@@ -670,6 +637,7 @@ public class QueryHandler {
                                     null,
                                     null,
                                     null,
+                                    null,
                                     null);
                             return;
                         }
@@ -695,9 +663,10 @@ public class QueryHandler {
                                  List<Subject> subjects,
                                  List<Assignment> assignments,
                                  List<Submission> submissions,
+                                 List<Material> materials,
                                  List<Notice> notices) {
         handler.post(() -> {
-            callbacks.onQuerySuccess(users, schools, teachers, subjects, assignments, submissions, notices);
+            callbacks.onQuerySuccess(users, schools, teachers, subjects, assignments, submissions, materials, notices);
         });
     }
 
@@ -708,9 +677,10 @@ public class QueryHandler {
                                Subject subject,
                                Assignment assignment,
                                Submission submission,
+                               Material material,
                                Notice notice) {
         handler.post(() -> {
-            callbacks.onQuerySuccess(user, school, teacher, subject, assignment, submission, notice);
+            callbacks.onQuerySuccess(user, school, teacher, subject, assignment, submission, material, notice);
         });
     }
 

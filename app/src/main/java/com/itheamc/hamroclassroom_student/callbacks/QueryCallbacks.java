@@ -1,6 +1,7 @@
 package com.itheamc.hamroclassroom_student.callbacks;
 
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.Subject;
@@ -18,6 +19,7 @@ public interface QueryCallbacks {
             List<Subject> subjects,
             List<Assignment> assignments,
             List<Submission> submissions,
+            List<Material> materials,
             List<Notice> notices);
 
     void onQuerySuccess(
@@ -27,6 +29,7 @@ public interface QueryCallbacks {
             Subject subject,
             Assignment assignment,
             Submission submission,
+            Material material,
             Notice notice);
 
     void onQuerySuccess(String message);

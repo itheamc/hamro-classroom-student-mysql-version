@@ -3,6 +3,7 @@ package com.itheamc.hamroclassroom_student.viewmodel;
 import androidx.lifecycle.ViewModel;
 
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.Subject;
@@ -25,6 +26,7 @@ public class MainViewModel extends ViewModel {
     private Submission submission;
     private School school;
     private Notice notice;
+    private Material material;
 
     /*
     Lists
@@ -37,6 +39,7 @@ public class MainViewModel extends ViewModel {
     private List<Submission> allSubmissions;
     private List<Submission> submissions;
     private List<Notice> notices;
+    private List<Material> materials;
 
 
     /*
@@ -179,4 +182,20 @@ public class MainViewModel extends ViewModel {
         this.subjects = subjectList;
     }
 
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    public List<Material> getMaterials() {
+        return materials;
+    }
+
+    public void setMaterials(List<Material> materials) {
+        this.materials = materials;
+    }
 }

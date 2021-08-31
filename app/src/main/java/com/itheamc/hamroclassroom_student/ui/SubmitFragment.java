@@ -235,7 +235,7 @@ public class SubmitFragment extends Fragment implements StorageCallbacks, ImageC
             showProgress();
             is_uploading = true;
             StorageHandler.getInstance(getActivity(), this)
-                    .uploadImage(imagesUri, submission);
+                    .addSubmission(imagesUri, submission);
         }
     }
 

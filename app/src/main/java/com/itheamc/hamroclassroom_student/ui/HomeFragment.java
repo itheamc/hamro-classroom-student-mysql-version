@@ -18,6 +18,7 @@ import com.itheamc.hamroclassroom_student.callbacks.QueryCallbacks;
 import com.itheamc.hamroclassroom_student.databinding.FragmentHomeBinding;
 import com.itheamc.hamroclassroom_student.handlers.QueryHandler;
 import com.itheamc.hamroclassroom_student.models.Assignment;
+import com.itheamc.hamroclassroom_student.models.Material;
 import com.itheamc.hamroclassroom_student.models.Notice;
 import com.itheamc.hamroclassroom_student.models.School;
 import com.itheamc.hamroclassroom_student.models.Subject;
@@ -145,12 +146,12 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
      * These are the methods overrided from the QueryCallbacks
      */
     @Override
-    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Notice> notices) {
+    public void onQuerySuccess(List<User> users, List<School> schools, List<Teacher> teachers, List<Subject> subjects, List<Assignment> assignments, List<Submission> submissions, List<Material> materials, List<Notice> notices) {
 
     }
 
     @Override
-    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Notice notice) {
+    public void onQuerySuccess(User user, School school, Teacher teacher, Subject subject, Assignment assignment, Submission submission, Material material, Notice notice) {
         if (homeBinding == null) return;
         // If User retrieved from the Firestore
         if (user != null) {

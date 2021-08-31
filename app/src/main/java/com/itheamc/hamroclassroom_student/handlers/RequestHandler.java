@@ -281,8 +281,8 @@ public class RequestHandler {
     }
 
     // GET REQUEST
-    public static Request materialsGetRequestByRef(@NonNull String _sub_ref) {
-        return new Request.Builder().url(PathHandler.MATERIALS_PATH + _sub_ref).headers(AuthHandler.authHeaders("subject", null)).get().build();
+    public static Request materialsGetRequestByUserRef(@NonNull String _ref) {
+        return new Request.Builder().url(PathHandler.MATERIALS_PATH + _ref).headers(AuthHandler.authHeaders("student", null)).get().build();
     }
 
 }

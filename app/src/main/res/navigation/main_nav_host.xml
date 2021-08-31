@@ -45,6 +45,13 @@
             app:exitAnim="@anim/fade_out"
             app:popEnterAnim="@anim/fade_in"
             app:popExitAnim="@anim/slide_out" />
+        <action
+            android:id="@+id/action_homeFragment_to_materialsFragment"
+            app:destination="@id/materialsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -149,4 +156,22 @@
         android:name="com.itheamc.hamroclassroom_student.ui.SubmitFragment"
         android:label="fragment_submit"
         tools:layout="@layout/fragment_submit" />
+    <fragment
+        android:id="@+id/materialsFragment"
+        android:name="com.itheamc.hamroclassroom_student.ui.MaterialsFragment"
+        android:label="fragment_materials"
+        tools:layout="@layout/fragment_materials" >
+        <action
+            android:id="@+id/action_materialsFragment_to_materialFragment"
+            app:destination="@id/materialFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/materialFragment"
+        android:name="com.itheamc.hamroclassroom_student.ui.MaterialFragment"
+        android:label="fragment_material"
+        tools:layout="@layout/fragment_material" />
 </navigation>

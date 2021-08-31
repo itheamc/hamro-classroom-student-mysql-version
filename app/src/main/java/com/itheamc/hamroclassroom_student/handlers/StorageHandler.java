@@ -75,7 +75,7 @@ public class StorageHandler {
      * ---------------------------------------------
      * Function to upload image on the cloud storage
      */
-    public void uploadImage(List<Uri> imagesUri, @NonNull Submission submission) {
+    public void addSubmission(List<Uri> imagesUri, @NonNull Submission submission) {
 
         // Handling all the image processing and uploads in background
         executorService.execute(() -> {
