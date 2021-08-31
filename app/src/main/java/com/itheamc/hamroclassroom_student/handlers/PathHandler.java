@@ -10,7 +10,7 @@ public class PathHandler {
     /*
    Base Path
     */
-    public static final String BASE_PATH = "https://hamroclassroom.amcbizprojects.co.in/";
+    public static final String BASE_PATH = "https://hamroclassroom.amcbizprojects.co.in/api/";
 
     /*
     Paths for School
