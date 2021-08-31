@@ -78,6 +78,7 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
         homeBinding.assignmentCardView.setOnClickListener(this);
         homeBinding.submissionsCardView.setOnClickListener(this);
         homeBinding.noticesCardView.setOnClickListener(this);
+        homeBinding.materialsCardView.setOnClickListener(this);
 
         // OnRefresh Listener on Swipe Refresh Layout
         homeBinding.homeSwipeRefreshLayout.setOnRefreshListener(this::retrieveUser);
@@ -128,6 +129,8 @@ public class HomeFragment extends Fragment implements QueryCallbacks, View.OnCli
             navigateTo(R.id.action_homeFragment_to_submissionsFragment);
         } else if (id == homeBinding.noticesCardView.getId()) {
             navigateTo(R.id.action_homeFragment_to_noticesFragment);
+        } else if (id == homeBinding.materialsCardView.getId()) {
+            navigateTo(R.id.action_homeFragment_to_materialsFragment);
         } else {
             NotifyUtils.logDebug(TAG, "Unspecified view is clicked");
         }
