@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -125,6 +126,20 @@ public class RegisterFragment extends Fragment implements QueryCallbacks, School
             spinnerAdapter = new SpinnerAdapter(getContext(), R.layout.custom_dropdown_item, genders);
         if (spinnerAdapter != null) registerBinding.spinnerGender.setAdapter(spinnerAdapter);
         registerBinding.spinnerGender.setOnItemSelectedListener(this);
+
+        // Custom Back Press handling
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    handleBottomSheet();
+                    return;
+                }
+                navController.popBackStack();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
 
 
         // Initializing the EditTexts
